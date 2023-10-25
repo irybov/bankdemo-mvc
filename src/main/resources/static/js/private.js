@@ -129,18 +129,18 @@ $(document).ready(function(){
         });
     });
 				
-	function connect(){
+/*	function connect(){
 		let xhr = new XMLHttpRequest();
 		xhr.open('GET', '/bankdemo/bills/notify');
 		xhr.send();
 		xhr.onload = function() {
 			if (xhr.status >= 200 && xhr.status < 300) {
-/*				let json = JSON.parse(xhr.responseText);
+				let json = JSON.parse(xhr.responseText);
 				let cell = '#balance'+json.id;
 				let total = parseFloat($(cell).html(), 2) + json.income;
 				$(cell).text(total.toFixed(2));
 				alert('+ ' + json.income);
-				connect();*/
+				connect();
 			}
 			else {
 				alert('Request failed: ' + xhr.status + ', ' + xhr.statusText);
@@ -161,15 +161,26 @@ $(document).ready(function(){
 	};
 	(function(){
 		connect();
-    })();
-    
-/*	window.onbeforeunload = closingCode;
-	function closingCode(){
-		xhr.abort();
-		return null;
-	}*/
+    })();*/
+	
+	let eventSource = new EventSource('/bankdemo/bills/notify');
+	eventSource.onopen = function(error) {
+		alert('Start recieving data = ' + this.readyState);
+	};
+	eventSource.onmessage = function(event) {
+		let json = JSON.parse(event.data);
+		let cell = '#balance'+json.id;
+		let total = parseFloat($(cell).html(), 2) + json.income;
+		$(cell).text(total.toFixed(2));
+		alert('+ ' + json.income);
+	};
+	eventSource.onerror = function(error) {
+		alert('Connection is down = ' + this.readyState);
+	};
+
 	$(window).on("beforeunload", function(){
-		xhr.abort();
+//		xhr.abort();
+		eventSource.close();
 	});
 	
 });

@@ -961,8 +961,8 @@ class BankControllerTest {
 	}
 	
 	@Test
-	void establish_emitter_connection() throws Exception {		
-		mockMVC.perform(get("/bills/notify")).andExpect(status().isCreated());
+	void establish_emitter() throws Exception {		
+//		mockMVC.perform(get("/bills/notify")).andExpect(status().isCreated());
 		mockMVC.perform(get("/bills/notify")).andExpect(status().isOk());
 	}
 	

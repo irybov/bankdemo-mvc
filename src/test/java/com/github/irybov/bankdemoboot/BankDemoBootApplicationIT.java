@@ -1163,8 +1163,8 @@ public class BankDemoBootApplicationIT {
 		}
 		
 		@Test
-		void establish_emitter_connection() throws Exception {
-			mockMVC.perform(get("/bills/notify")).andExpect(status().isCreated());
+		void establish_emitter() throws Exception {
+//			mockMVC.perform(get("/bills/notify")).andExpect(status().isCreated());
 			mockMVC.perform(get("/bills/notify")).andExpect(status().isOk());
 /*			ResponseBodyEmitter emitter = testRestTemplate.getForObject(("/bills/notify"), 
 					ResponseBodyEmitter.class);

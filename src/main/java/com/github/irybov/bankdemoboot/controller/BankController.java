@@ -60,6 +60,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -108,7 +109,7 @@ public class BankController extends BaseController {
 		this.executorService = executorService;
 	}
 
-	private Map<String, ResponseBodyEmitter> emitters = new ConcurrentHashMap<>();
+	private Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 	
 	@Value("${external.payment-service}")
 	private String externalURL;
@@ -491,22 +492,29 @@ public class BankController extends BaseController {
 	@ApiIgnore
 	@PreAuthorize("hasRole('CLIENT')")
 	@GetMapping(path = "/bills/notify")
-	public ResponseBodyEmitter registerEmitter(HttpServletResponse response) {
+//	@GetMapping(path = "/bills/notify", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//	@ResponseBody
+	public SseEmitter registerEmitter(HttpServletResponse response) {
 		
 		String phone = authentication().getName();
-		ResponseBodyEmitter emitter;
+		SseEmitter emitter;
+//		HttpStatus status;
 		if(emitters.containsKey(phone)) {
 			emitter = emitters.get(phone);
-			response.setStatus(HttpServletResponse.SC_OK);
+//			response.setStatus(HttpServletResponse.SC_OK);
+//			status = HttpStatus.OK;
 		}
 		else {
-			emitter = new ResponseBodyEmitter(0L);
+			emitter = new SseEmitter(0L);
 			emitters.putIfAbsent(phone, emitter);				
-			response.setStatus(HttpServletResponse.SC_CREATED);
+//			response.setStatus(HttpServletResponse.SC_CREATED);
+//			status = HttpStatus.CREATED;
 		}		
 		emitter.onCompletion(()-> emitters.remove(phone, emitter));
 		emitter.onTimeout(()-> emitters.remove(phone, emitter));
 		emitter.onError((e)-> emitters.remove(phone, emitter));
+//		response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
+//		response.setStatus(HttpServletResponse.SC_OK);
 		return emitter;
 	}
 	private void activateEmitter(int id, double amount) {
@@ -515,10 +523,11 @@ public class BankController extends BaseController {
 		String phone = bill.getOwner().getPhone();
 		
 		if(emitters.containsKey(phone)) {
-			ResponseBodyEmitter emitter = emitters.get(phone);
+			SseEmitter emitter = emitters.get(phone);
 			try {
 				String load = mapper.writeValueAsString(new EmitterPayload(id, amount));
 				emitter.send(load);
+//				emitter.send(load, MediaType.TEXT_EVENT_STREAM);
 //				emitter.complete();
 			}
 			catch (Exception exc) {
