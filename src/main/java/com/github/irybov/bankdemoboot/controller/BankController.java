@@ -450,7 +450,8 @@ public class BankController extends BaseController {
 		{@ApiResponse(code = 200, message = "Successfully received", response = String.class), 
 		 @ApiResponse(code = 404, message = "", responseContainer = "List", response = String.class),
 		 @ApiResponse(code = 500, message = "", response = String.class)})
-	@CrossOrigin(originPatterns = "${external.payment-service}", methods = {RequestMethod.OPTIONS, RequestMethod.POST})
+	@CrossOrigin(originPatterns = "${external.payment-service}", 
+		methods = {RequestMethod.OPTIONS, RequestMethod.POST})
 	@PostMapping(path = "/bills/external",
 					consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
 					produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

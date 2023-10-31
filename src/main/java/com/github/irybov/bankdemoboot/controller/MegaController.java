@@ -1,5 +1,7 @@
 package com.github.irybov.bankdemoboot.controller;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +21,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(description = "Special controller for runtime switch of model's layer type")
-@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
 @Slf4j
 @RestController
 public class MegaController {
@@ -42,6 +44,8 @@ public class MegaController {
 	
 	@ApiOperation("Switchs model's layer type wired to defined controllers")
 	@PreAuthorize("hasRole('ADMIN')")
+	@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", 
+		methods = {RequestMethod.OPTIONS, RequestMethod.POST}, allowCredentials="true")
 	@PutMapping("/control")
 	public String changeServiceImpl(@RequestParam String impl, HttpServletResponse response) {
 		

@@ -4,8 +4,11 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.irybov.bankdemoboot.entity.Account;
 import com.github.irybov.bankdemoboot.security.Role;
@@ -60,5 +63,20 @@ public class AccountDAO {
 				.setParameter("phone", phone)
 				.getResultStream().findFirst().orElse(null);
 	}
+	
+	@Transactional(readOnly = true, noRollbackFor = Exception.class)
+	public Account getWithRoles(String phone) {
+/*		return entityManager.createQuery("SELECT a FROM Account a LEFT JOIN FETCH a.roles WHERE a.phone=:phone",
+				Account.class)
+				.setParameter("phone", phone)
+				.getResultStream().findFirst().orElse(null);*/
+		Account account = entityManager.createQuery("SELECT a FROM Account a WHERE a.phone=:phone",
+				Account.class)
+				.setParameter("phone", phone)
+				.getResultStream().findFirst().orElse(null);		
+		Hibernate.initialize(account.getRoles());		
+		return account;
+	}
+	
 	
 }

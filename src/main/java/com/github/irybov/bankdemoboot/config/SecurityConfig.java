@@ -143,7 +143,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    .csrf()
 		    .csrfTokenRepository(csrfTokenRepository)
 		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
-		    .ignoringAntMatchers("/bills/external", "/actuator/**")
+		    .ignoringAntMatchers("/bills/external", "/actuator/**", "/**/swagger*/**")
 //		    .ignoringAntMatchers(REMOTE_LIST_URLS)
 		        .and()
 			.formLogin()
