@@ -12,7 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,22 +37,33 @@ class MegaControllerTest {
 	@Autowired
 	private MockMvc mockMVC;
 	
+	@TestConfiguration
+	static class TestConfig {
+		
+		@Bean
+		@Primary
+		public BCryptPasswordEncoder passwordEncoder() {
+		    return new BCryptPasswordEncoder(4);
+		}
+		
+	}
+	
 	@Test
 	void can_change_implementations() throws Exception {
 
 		String impl = "DAO";
-		String bean = "AccountServiceDAO";
-		doNothing().when(details).setServiceImpl(impl);
-		when(auth.setServiceImpl(impl)).thenReturn(bean);
+		String bean = "accountServiceDAO";
+//		doNothing().when(details).setServiceImpl(impl);
+		when(details.setServiceImpl(impl)).thenReturn(bean);
 		mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 				.andExpect(status().isOk())
 				.andExpect(content()
 					.string(containsString("Services impementation has been switched to " + bean)));
 		
 		impl = "JPA";
-		bean = "AccountServicePJA";
-		doNothing().when(details).setServiceImpl(impl);
-		when(auth.setServiceImpl(impl)).thenReturn(bean);
+		bean = "accountServicePJA";
+//		doNothing().when(details).setServiceImpl(impl);
+		when(details.setServiceImpl(impl)).thenReturn(bean);
 		mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 				.andExpect(status().isOk())
 				.andExpect(content()

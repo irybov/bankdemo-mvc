@@ -18,7 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(description = "Special controller for runtime switch of model's layer type")
-//@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
+@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
 @Slf4j
 @RestController
 public class MegaController {
@@ -47,13 +47,14 @@ public class MegaController {
 		
 		if(impl.equals("JPA") || impl.equals("DAO")) {
 		
-			details.setServiceImpl(impl);
-			String bean = auth.setServiceImpl(impl);
+			String bean = details.setServiceImpl(impl);
+//			auth.setServiceImpl(impl);
 			log.info("Admin {} has switched services impementation to {}",
 					authentication().getName(), impl);
 			return "Services impementation has been switched to " + bean;
 		}
-		else {response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		else {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return "Wrong implementation type specified, retry";
 		}
 	}

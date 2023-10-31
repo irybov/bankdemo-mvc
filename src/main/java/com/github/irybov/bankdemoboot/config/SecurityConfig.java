@@ -2,6 +2,7 @@ package com.github.irybov.bankdemoboot.config;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 //import javax.sql.DataSource;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 //import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
@@ -46,6 +48,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 //	@Autowired
 //	private DataSource dataSource;
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	@Autowired
+	private AccountDetailsService accountDetailsService;
 	
     private static final String[] WHITE_LIST_URLS = { 
     		"/home", 
@@ -73,28 +79,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/h2-console/**"
     };
 //    private static final String[] REMOTE_LIST_URLS = {
+//			"/*swagger*/**", 
+//			"/**/api-docs/**", 
 //    		"/actuator/**"
 //    };
 	
-    private final AccountDetailsService accountDetailsService;
+/*    private final AccountDetailsService accountDetailsService;
     public SecurityConfig(AccountDetailsService accountDetailsService) {
         this.accountDetailsService = accountDetailsService;
     }	
 	@Bean
 	protected BCryptPasswordEncoder passwordEncoder() {
 	    return new BCryptPasswordEncoder(4);
-	}    
+	}*/    
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    	
+    	    	
 		auth.inMemoryAuthentication()
 			.withUser("remote")
-			.password(passwordEncoder().encode("remote"))
+			.password(bCryptPasswordEncoder.encode("remote"))
 			.roles("REMOTE");
 		
         DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
         dao.setUserDetailsService(accountDetailsService);
-        dao.setPasswordEncoder(passwordEncoder());
+        dao.setPasswordEncoder(bCryptPasswordEncoder);
         auth.authenticationProvider(dao);
     	
 //        auth.userDetailsService(accountDetailsService)
@@ -169,19 +177,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    @Order(Ordered.HIGHEST_PRECEDENCE)
 //    public static class RemoteSecurityConfig extends WebSecurityConfigurerAdapter {
 //    	
+//        @Override
+//        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        	
+//    		auth.inMemoryAuthentication()
+//    			.withUser("remote")
+//    			.password(BCrypt.hashpw("remote", BCrypt.gensalt(4)))
+//    			.roles("REMOTE");
+//        }
+//    	
 //    	@Override
 //        protected void configure(HttpSecurity http) throws Exception {
 //    		
 //            http
-//            	.csrf().disable()
-//                .antMatcher("/**/swagger*/**")
+//            	.csrf()
+//    		    .ignoringAntMatchers(REMOTE_LIST_URLS)
+//    		    .disable()
+////                .antMatcher("/*swagger*/**")
 //                .authorizeRequests()
+//                .antMatchers(REMOTE_LIST_URLS).hasRole("REMOTE")
 //                .anyRequest().hasRole("REMOTE")
 //        			.and()
 //                .httpBasic();
 //        }
 //    	
-//    }
+//    }*/
 	
 /*    @Override
     public void addCorsMappings(CorsRegistry registry) {

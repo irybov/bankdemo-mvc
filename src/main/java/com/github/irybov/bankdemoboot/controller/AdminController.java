@@ -51,7 +51,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
 //import org.springframework.ui.ModelMap;
 //import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,7 +73,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(description = "Controller for admin's actions ")
-@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
 @Slf4j
 //@Validated
 @Controller
@@ -444,9 +442,9 @@ public class AdminController extends BaseController {
 	}
 
 	@Override
-	String setServiceImpl(String impl) {
+	void setServiceImpl(String impl) {
 		// TODO Auto-generated method stub
-		return null;
+//		return null;
 	}
 	
 }

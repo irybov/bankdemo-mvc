@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,11 +33,15 @@ public class AppConfig {
     @Autowired
     private ApplicationContext context;
 	
-	@ConfigurationProperties(prefix = "spring.datasource")
+/*	@ConfigurationProperties(prefix = "spring.datasource")
 	@Bean
 	@Primary
 	public DataSource datasource() {
 		return DataSourceBuilder.create().build();
+	}*/
+	@Bean
+	protected BCryptPasswordEncoder passwordEncoder() {
+	    return new BCryptPasswordEncoder(4);
 	}
 	
     @Bean

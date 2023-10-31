@@ -85,7 +85,6 @@ import com.github.irybov.bankdemoboot.service.AccountService;
 import com.github.irybov.bankdemoboot.service.BillService;
 
 @Api(description = "Controller for client's actions")
-@CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
 @Slf4j
 //@Validated
 @Controller
@@ -587,9 +586,9 @@ public class BankController extends BaseController {
 	}
 
 	@Override
-	String setServiceImpl(String impl) {
+	void setServiceImpl(String impl) {
 		// TODO Auto-generated method stub
-		return null;
+//		return null;
 	}
 	
 /*	@GetMapping("/operations/list")
