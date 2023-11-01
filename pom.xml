@@ -195,7 +195,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			                <goal>repackage</goal>
 			            </goals>
 				<configuration>
-					<mainClass>com.github.irybov.bankdemoboot.BankDemoBootApplication</mainClass>
+					<mainClass>com.github.irybov.bankdemossr.BankDemoBootApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
