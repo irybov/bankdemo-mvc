@@ -36,8 +36,8 @@ public class AccountDAO {
 		return entityManager.createQuery("SELECT a FROM Account a WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-//				.getResultStream().findFirst().orElse(null);
-				.getSingleResult();
+				.getResultStream().findFirst().orElse(null);
+//				.getSingleResult();
 	}
 	public Account getById(int id) {
 		return entityManager.find(Account.class, id);
@@ -62,8 +62,8 @@ public class AccountDAO {
 		return entityManager.createQuery("SELECT a FROM Account a LEFT JOIN FETCH a.bills WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-//				.getResultStream().findFirst().orElse(null);
-				.getSingleResult();
+				.getResultStream().findFirst().orElse(null);
+//				.getSingleResult();
 	}
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)

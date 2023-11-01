@@ -44,7 +44,7 @@ public class SwaggerConfig {
     public Docket api() { 
         return new Docket(DocumentationType.SWAGGER_2)
           .select() 
-          .apis(RequestHandlerSelectors.basePackage("com.github.irybov.bankdemoboot.controller"))
+          .apis(RequestHandlerSelectors.basePackage("com.github.irybov.bankdemossr.controller"))
           .paths(PathSelectors.any())
           .build().apiInfo(metaData())
           .securityContexts(Arrays.asList(mySecurityContext()))
