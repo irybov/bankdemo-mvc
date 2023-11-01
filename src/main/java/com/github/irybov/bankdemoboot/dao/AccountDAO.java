@@ -36,7 +36,8 @@ public class AccountDAO {
 		return entityManager.createQuery("SELECT a FROM Account a WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-				.getResultStream().findFirst().orElse(null);
+//				.getResultStream().findFirst().orElse(null);
+				.getSingleResult();
 	}
 	public Account getById(int id) {
 		return entityManager.find(Account.class, id);
@@ -61,7 +62,8 @@ public class AccountDAO {
 		return entityManager.createQuery("SELECT a FROM Account a LEFT JOIN FETCH a.bills WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-				.getResultStream().findFirst().orElse(null);
+//				.getResultStream().findFirst().orElse(null);
+				.getSingleResult();
 	}
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
@@ -73,7 +75,8 @@ public class AccountDAO {
 		Account account = entityManager.createQuery("SELECT a FROM Account a WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-				.getResultStream().findFirst().orElse(null);		
+//				.getResultStream().findFirst().orElse(null);
+				.getSingleResult();
 		Hibernate.initialize(account.getRoles());		
 		return account;
 	}
