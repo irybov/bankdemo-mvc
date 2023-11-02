@@ -29,7 +29,7 @@ public class AccountDetailsService implements UserDetailsService {
 	@Qualifier("accountServiceAlias")
 	private AccountService accountService;
 		
-//	@Transactional(readOnly = true, noRollbackFor = Exception.class)
+	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	@Override
 	public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
 		

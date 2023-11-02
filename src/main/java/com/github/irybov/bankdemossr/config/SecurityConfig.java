@@ -48,10 +48,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 //	@Autowired
 //	private DataSource dataSource;
-	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-	@Autowired
-	private AccountDetailsService accountDetailsService;
+	private final BCryptPasswordEncoder passwordEncoder;
+	private final AccountDetailsService accountDetailsService;
+	public SecurityConfig(BCryptPasswordEncoder passwordEncoder, 
+			AccountDetailsService accountDetailsService) {
+		this.passwordEncoder = passwordEncoder;
+		this.accountDetailsService = accountDetailsService;
+	}
 	
     private static final String[] WHITE_LIST_URLS = { 
     		"/home", 
@@ -97,12 +100,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     	    	
 		auth.inMemoryAuthentication()
 			.withUser("remote")
-			.password(bCryptPasswordEncoder.encode("remote"))
+			.password(passwordEncoder.encode("remote"))
 			.roles("REMOTE");
 		
         DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
         dao.setUserDetailsService(accountDetailsService);
-        dao.setPasswordEncoder(bCryptPasswordEncoder);
+        dao.setPasswordEncoder(passwordEncoder);
         auth.authenticationProvider(dao);
     	
 //        auth.userDetailsService(accountDetailsService)

@@ -66,17 +66,12 @@ public class AccountDAO {
 //				.getSingleResult();
 	}
 	
-	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public Account getWithRoles(String phone) {
-/*		return entityManager.createQuery("SELECT a FROM Account a LEFT JOIN FETCH a.roles WHERE a.phone=:phone",
-				Account.class)
-				.setParameter("phone", phone)
-				.getResultStream().findFirst().orElse(null);*/
 		Account account = entityManager.createQuery("SELECT a FROM Account a WHERE a.phone=:phone",
 				Account.class)
 				.setParameter("phone", phone)
-//				.getResultStream().findFirst().orElse(null);
-				.getSingleResult();
+				.getResultStream().findFirst().orElse(null);
+//				.getSingleResult();
 		Hibernate.initialize(account.getRoles());		
 		return account;
 	}
