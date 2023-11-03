@@ -47,8 +47,8 @@ public class AccountDetailsService implements UserDetailsService {
 
 	public String setServiceImpl(String impl) {
 		
-		if(impl.equals("JPA")) accountService = (AccountService) context.getBean("accountServiceJPA");
-		else if(impl.equals("DAO")) accountService = (AccountService) context.getBean("accountServiceDAO");
+		if(impl.equals("JPA")) accountService = (AccountService) context.getBean(AccountServiceJPA.class);
+		else if(impl.equals("DAO")) accountService = (AccountService) context.getBean(AccountServiceDAO.class);
 		return accountService.getClass().getSimpleName();
 	}
 	
