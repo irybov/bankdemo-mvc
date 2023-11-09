@@ -24,8 +24,6 @@ public class AccountDetailsService implements UserDetailsService {
 	@Autowired
 	private AccountDAO dao;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	@Qualifier("accountServiceAlias")
 	private AccountService accountService;
 		
@@ -43,13 +41,6 @@ public class AccountDetailsService implements UserDetailsService {
 		}
 		if(account == null) throw new UsernameNotFoundException("User " + phone + " not found");	
 		return new AccountDetails(account);
-	}
-
-	public String setServiceImpl(String impl) {
-		
-		if(impl.equals("JPA")) accountService = (AccountService) context.getBean(AccountServiceJPA.class);
-		else if(impl.equals("DAO")) accountService = (AccountService) context.getBean(AccountServiceDAO.class);
-		return accountService.getClass().getSimpleName();
 	}
 	
 }

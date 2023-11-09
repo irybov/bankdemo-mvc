@@ -48,7 +48,7 @@ class AccountRepositoryTest {
 		account = new Account
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		account.addRole(Role.ADMIN);
-		accountRepository.save(account);
+		accountRepository.saveAndFlush(account);
 	}
 	
 	@Test
@@ -68,8 +68,6 @@ class AccountRepositoryTest {
 	void search_by_phone() {
 		Account fromDB = accountRepository.findByPhone(oldPN);
 		assertThat(fromDB).isEqualTo(account);
-		fromDB = accountRepository.getByPhone(oldPN);
-		assertThat(fromDB).isEqualTo(account);
 		fromDB = accountRepository.getWithBills(oldPN);
 		assertThat(fromDB).isEqualTo(account);
 	}
@@ -80,7 +78,7 @@ class AccountRepositoryTest {
 		Account fromDB = accountRepository.findByPhone(oldPN);
 		fromDB.setPhone(newPN);
 		accountRepository.save(fromDB);
-		Account updated = accountRepository.getByPhone(newPN);
+		Account updated = accountRepository.findByPhone(newPN);
 		assertThat(fromDB).isEqualTo(updated);
     }
     
@@ -118,7 +116,7 @@ class AccountRepositoryTest {
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(DataIntegrityViolationException.class)
-		.isThrownBy(() -> {accountRepository.save(fakeAdmin);});
+		.isThrownBy(() -> {accountRepository.saveAndFlush(fakeAdmin);});
     }
 	
     @AfterAll

@@ -440,11 +440,5 @@ public class AdminController extends BaseController {
 		*/
 		return byteArray;		
 	}
-
-	@Override
-	void setServiceImpl(String impl) {
-		// TODO Auto-generated method stub
-//		return null;
-	}
 	
 }

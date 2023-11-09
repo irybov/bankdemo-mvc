@@ -72,6 +72,10 @@ import com.github.irybov.bankdemossr.repository.AccountRepository;
 import com.github.irybov.bankdemossr.service.AccountService;
 import com.github.irybov.bankdemossr.service.AccountServiceDAO;
 import com.github.irybov.bankdemossr.service.AccountServiceJPA;
+import com.github.irybov.bankdemossr.service.BillServiceDAO;
+import com.github.irybov.bankdemossr.service.BillServiceJPA;
+import com.github.irybov.bankdemossr.service.OperationServiceDAO;
+import com.github.irybov.bankdemossr.service.OperationServiceJPA;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -1218,24 +1222,29 @@ public class BankDemoBootApplicationIT {
 	@Nested
 	class MegaControllerIT{
 		
+	    @Autowired
+	    ApplicationContext context;
+		
 		@Test
-		void can_change_implementations() throws Exception {
+		void can_change_implementation() throws Exception {
 
-			String impl = "DAO";
-			String bean = "AccountService".concat(impl);
+			String impl = "DAO";			
+			mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
+				.andExpect(status().isOk())
+				.andExpect(content()
+					.string(containsString("Services impementation has been switched to " + impl)));			
+			assertThat(context.getBean("accountServiceAlias")).isInstanceOf(AccountServiceDAO.class);
+			assertThat(context.getBean("billServiceAlias")).isInstanceOf(BillServiceDAO.class);
+			assertThat(context.getBean("operationServiceAlias")).isInstanceOf(OperationServiceDAO.class);
 			
-			mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
-				.andExpect(status().isOk())
-				.andExpect(content()
-					.string(containsString("Services impementation has been switched to " + bean)));
-
 			impl = "JPA";
-			bean = "AccountService".concat(impl);
-
 			mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 				.andExpect(status().isOk())
 				.andExpect(content()
-					.string(containsString("Services impementation has been switched to " + bean)));
+					.string(containsString("Services impementation has been switched to " + impl)));
+			assertThat(context.getBean("accountServiceAlias")).isInstanceOf(AccountServiceJPA.class);
+			assertThat(context.getBean("billServiceAlias")).isInstanceOf(BillServiceJPA.class);
+			assertThat(context.getBean("operationServiceAlias")).isInstanceOf(OperationServiceJPA.class);
 		}
 				
 		@Test
@@ -1245,7 +1254,7 @@ public class BankDemoBootApplicationIT {
 			mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 					.andExpect(status().isBadRequest())
 					.andExpect(content()
-						.string(containsString("Wrong implementation type specified, retry")));
+						.string(containsString("Wrong implementation type " + impl + " specified, retry")));
 		}
 		
 		@WithMockUser(username = "1111111111", roles = "CLIENT")

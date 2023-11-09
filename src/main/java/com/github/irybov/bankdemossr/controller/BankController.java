@@ -584,12 +584,6 @@ public class BankController extends BaseController {
 		return "account/password";
 	}
 
-	@Override
-	void setServiceImpl(String impl) {
-		// TODO Auto-generated method stub
-//		return null;
-	}
-	
 /*	@GetMapping("/operations/list")
 	public String getOperations(@RequestParam int id, Model model) {
 		model.addAttribute("billId", id);

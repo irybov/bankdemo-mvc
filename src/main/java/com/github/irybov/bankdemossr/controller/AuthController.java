@@ -105,12 +105,4 @@ public class AuthController extends BaseController {
 		}
 	}
 
-	@Override
-	void setServiceImpl(String impl) {
-		
-		if(impl.equals("JPA")) accountService = context.getBean(AccountServiceJPA.class);
-		else if(impl.equals("DAO")) accountService = context.getBean(AccountServiceDAO.class);
-//		return accountService.getClass().getSimpleName();
-	}
-	
 }

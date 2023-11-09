@@ -33,19 +33,18 @@ public class AppConfig {
     @Autowired
     private ApplicationContext context;
 	
-	@ConfigurationProperties(prefix = "spring.datasource")
+/*	@ConfigurationProperties(prefix = "spring.datasource")
 	@Bean
 	@Primary
 	public DataSource datasource() {
 		return DataSourceBuilder.create().build();
-	}
+	}*/
 	@Bean
 	protected BCryptPasswordEncoder bCryptPasswordEncoder() {
 	    return new BCryptPasswordEncoder(4);
 	}
 	
     @Bean
-    @Primary
     public AccountService accountServiceAlias(@Value("accountService"+"${bean.service-impl}")
     String qualifier) {
         return (AccountService) context.getBean(qualifier);

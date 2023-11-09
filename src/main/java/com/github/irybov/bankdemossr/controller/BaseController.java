@@ -24,6 +24,4 @@ abstract class BaseController {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
 	
-	abstract void setServiceImpl(String impl);
-	
 }
