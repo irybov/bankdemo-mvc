@@ -68,7 +68,7 @@ class AccountDAOTest {
 	@Test
 //	@Order(1)
 	void check_that_phone_present() {
-        assertThat(accountDAO.getPhone(oldPN)).isEqualTo(account.getPhone());
+        assertThat(accountDAO.getPhone(oldPN).get()).isEqualTo(account.getPhone());
 	}
 	
     @Test
@@ -76,7 +76,7 @@ class AccountDAOTest {
 	void check_that_phone_not_present() {
 //		assertThatExceptionOfType(NoResultException.class)
 //		.isThrownBy(() -> {accountDAO.getPhone(newPN);});
-		assertThat(accountDAO.getPhone(newPN)).isNull();
+		assertThat(accountDAO.getPhone(newPN)).isEmpty();
 	}
 	
 	@Test
@@ -132,7 +132,7 @@ class AccountDAOTest {
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(PersistenceException.class)
-		.isThrownBy(() -> {accountDAO.saveAccount(fakeAdmin);});
+				.isThrownBy(() -> {accountDAO.saveAccount(fakeAdmin);});
     }
 	
     @AfterEach

@@ -20,8 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.github.irybov.bankdemossr.controller.dto.AccountRequest;
 import com.github.irybov.bankdemossr.controller.dto.AccountResponse;
 import com.github.irybov.bankdemossr.service.AccountService;
-import com.github.irybov.bankdemossr.service.AccountServiceDAO;
-import com.github.irybov.bankdemossr.service.AccountServiceJPA;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -97,7 +95,7 @@ public class AuthController extends BaseController {
 			model.addAttribute("success", "Your account has been created");
 			return "auth/login";
 		}
-		catch (Exception exc) {
+		catch (RuntimeException exc) {
 			log.error(exc.getMessage(), exc);
 			response.setStatus(HttpServletResponse.SC_CONFLICT);
 			model.addAttribute("message", exc.getMessage());

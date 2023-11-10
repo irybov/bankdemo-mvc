@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -74,11 +75,11 @@ class AccountValidatorTest {
 	
 		Errors errors = new BeanPropertyBindingResult(accountRequestDTO, "accountRequestDTO");
 				
-		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(null);
+		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(Optional.empty());
 		accountValidator.validate(accountRequestDTO, errors);
 		assertFalse(errors.hasErrors());
 		
-		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(phone);
+		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(Optional.of(phone));
 		accountValidator.validate(accountRequestDTO, errors);
 		assertTrue(errors.hasFieldErrors("phone"));
 		
@@ -88,7 +89,7 @@ class AccountValidatorTest {
 		accountRequestDTO.setPassword("superb");
 		accountRequestDTO.setSurname("a");
 		
-		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(null);
+		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(Optional.empty());
 		accountValidator.validate(accountRequestDTO, errors);
 		assertTrue(errors.hasFieldErrors("birthday"));
 		assertTrue(errors.hasFieldErrors("name"));
@@ -100,7 +101,7 @@ class AccountValidatorTest {
 				
 		accountRequestDTO.setPhone("xxx");
 		
-		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(null);
+		when(accountService.getPhone(accountRequestDTO.getPhone())).thenReturn(Optional.empty());
 		accountValidator.validate(accountRequestDTO, errors);
 		assertTrue(errors.hasFieldErrors("phone"));
 		

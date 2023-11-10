@@ -3,6 +3,7 @@ package com.github.irybov.bankdemossr.service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -43,7 +44,7 @@ public class AccountServiceDAO implements AccountService {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
-	public void saveAccount(AccountRequest accountRequest) throws Exception {
+	public void saveAccount(AccountRequest accountRequest) throws RuntimeException {
 		
 //		LocalDate birthday = LocalDate.parse(accountRequestDTO.getBirthday());
 		if (accountRequest.getBirthday().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
@@ -78,7 +79,7 @@ public class AccountServiceDAO implements AccountService {
 	public AccountResponse getAccountDTO(String phone) throws NoResultException {
 		return modelMapper.map(getAccount(phone), AccountResponse.class);
 	}
-	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
 	Account getAccount(String phone) throws NoResultException {
 		Account account = accountDAO.getAccount(phone);
 		if(account == null) {
@@ -103,17 +104,17 @@ public class AccountServiceDAO implements AccountService {
 		return true;
 	}
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
-	public String getPhone(String phone){
+	public Optional<String> getPhone(String phone){
 		return accountDAO.getPhone(phone);
 	}
-	@Transactional(readOnly = true, noRollbackFor = Exception.class)
+/*	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public List<BillResponse> getBills(int id) {
 //		List<Bill> bills = accountDAO.getById(id).getBills();
 //		return bills.stream().map(BillResponseDTO::new).collect(Collectors.toList());
 		return billService.getAll(id);
-	}
+	}*/
 	
-	public BillResponse addBill(String phone, String currency) throws Exception {
+	public BillResponse addBill(String phone, String currency) throws RuntimeException {
 		Account account = getAccount(phone);
 		Bill bill = new Bill(currency, true, account);
 		billService.saveBill(bill);

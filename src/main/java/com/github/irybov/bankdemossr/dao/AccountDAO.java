@@ -1,14 +1,13 @@
 package com.github.irybov.bankdemossr.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.github.irybov.bankdemossr.entity.Account;
 import com.github.irybov.bankdemossr.security.Role;
@@ -43,11 +42,12 @@ public class AccountDAO {
 		return entityManager.find(Account.class, id);
 	}
 	
-	public String getPhone(String check) {
+	public Optional<String> getPhone(String check) {
 		return entityManager.createQuery("SELECT phone FROM Account WHERE phone=:check",
 				String.class)
 				.setParameter("check", check)
-				.getResultStream().findFirst().orElse(null);
+				.getResultStream().findFirst();
+//				.getSingleResult();
 	}
 	
 	public List<Account> getAll() {
@@ -75,6 +75,5 @@ public class AccountDAO {
 		Hibernate.initialize(account.getRoles());		
 		return account;
 	}
-	
-	
+		
 }

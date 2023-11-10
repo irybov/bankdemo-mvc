@@ -49,7 +49,7 @@ public class AccountValidator implements org.springframework.validation.Validato
 		if(account.getBirthday().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
 			errors.rejectValue("birthday", "", "Validator in action!");
 		}
-		if(accountService.getPhone(account.getPhone()) == null) return;
+		if(!accountService.getPhone(account.getPhone()).isPresent()) return;
 			errors.rejectValue("phone", "", "Validator in action!");
 	}
 

@@ -50,7 +50,7 @@ public class BillServiceJPA implements BillService {
 	public BillResponse getBillDTO(int id) throws EntityNotFoundException {
 		return modelMapper.map(getBill(id), BillResponse.class);
 	}
-	//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
+//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
 	Bill getBill(int id) throws EntityNotFoundException {
 		return billRepository.findById(id).orElseThrow
 				(()-> new EntityNotFoundException("Target bill with id: " + id + " not found"));

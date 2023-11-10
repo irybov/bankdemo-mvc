@@ -54,31 +54,31 @@ class AccountRepositoryTest {
 	@Test
 //	@Order(1)
 	void check_that_phone_present() {
-        assertThat(accountRepository.getPhone(oldPN)).isEqualTo(account.getPhone());
+        assertThat(accountRepository.getPhone(oldPN).get()).isEqualTo(account.getPhone());
 	}
 	
     @Test
 //	@Order(2)
 	void check_that_phone_not_present() {
-		assertThat(accountRepository.getPhone(newPN)).isNull();
+		assertThat(accountRepository.getPhone(newPN)).isEmpty();
 	}
 	
 	@Test
 //	@Order(3)
 	void search_by_phone() {
-		Account fromDB = accountRepository.findByPhone(oldPN);
+		Account fromDB = accountRepository.findByPhone(oldPN).get();
 		assertThat(fromDB).isEqualTo(account);
-		fromDB = accountRepository.getWithBills(oldPN);
+		fromDB = accountRepository.getWithBills(oldPN).get();
 		assertThat(fromDB).isEqualTo(account);
 	}
 	
     @Test
 //	@Order(4)
     void update_and_compare() {    	
-		Account fromDB = accountRepository.findByPhone(oldPN);
+		Account fromDB = accountRepository.findByPhone(oldPN).get();
 		fromDB.setPhone(newPN);
 		accountRepository.save(fromDB);
-		Account updated = accountRepository.findByPhone(newPN);
+		Account updated = accountRepository.findByPhone(newPN).get();
 		assertThat(fromDB).isEqualTo(updated);
     }
     
@@ -116,7 +116,7 @@ class AccountRepositoryTest {
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(DataIntegrityViolationException.class)
-		.isThrownBy(() -> {accountRepository.saveAndFlush(fakeAdmin);});
+				.isThrownBy(() -> {accountRepository.saveAndFlush(fakeAdmin);});
     }
 	
     @AfterAll

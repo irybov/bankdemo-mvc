@@ -99,7 +99,7 @@ class AccountServiceJPATest {
     	Bill billOne = new Bill(currency, true, adminEntity);
     	Bill billTwo = new Bill(currency, true, adminEntity);
     	
-    	given(accountRepository.findByPhone(phone)).willReturn(adminEntity);
+    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	doAnswer(new Answer<Account>() {
 			@Override
 			public Account answer(InvocationOnMock invocation) throws Throwable {
@@ -122,7 +122,7 @@ class AccountServiceJPATest {
 				.map(source -> modelMapper.map(source, BillResponse.class))
 				.collect(Collectors.toList());
     	given(billService.getAll(anyInt())).willReturn(dtos);
-    	org.assertj.core.api.BDDAssertions.then(accountService.getBills(anyInt())).hasSize(3);
+    	org.assertj.core.api.BDDAssertions.then(billService.getAll(anyInt())).hasSize(3);
 //    	verify(accountRepository).getById(anyInt());
     	verify(billService).getAll(anyInt());
     }
@@ -130,8 +130,8 @@ class AccountServiceJPATest {
     @Test
     void can_get_phone_if_presents() {
         
-        given(accountRepository.getPhone(phone)).willReturn(phone);
-        org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone))
+        given(accountRepository.getPhone(phone)).willReturn(Optional.of(phone));
+        org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone).get())
         									.isExactlyInstanceOf(String.class)
         									.hasSize(phone.length());
         verify(accountRepository).getPhone(phone);
@@ -148,7 +148,7 @@ class AccountServiceJPATest {
     @Test
     void can_get_single_account() {
 
-		given(accountRepository.findByPhone(phone)).willReturn(adminEntity);
+		given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	try {
     		org.assertj.core.api.BDDAssertions.then(accountService.getAccount(phone))
     											 .isExactlyInstanceOf(Account.class);
@@ -201,7 +201,7 @@ class AccountServiceJPATest {
     void can_change_password() {
     	
     	String password = "nightrider";
-    	given(accountRepository.findByPhone(phone)).willReturn(adminEntity);
+    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	doAnswer(new Answer<Account>() {
 			@Override
 			public Account answer(InvocationOnMock invocation) throws Throwable {
@@ -222,7 +222,7 @@ class AccountServiceJPATest {
     @Test
     void password_comparison() {
     	
-    	given(accountRepository.findByPhone(phone)).willReturn(adminEntity);
+    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
 //    	given(bCryptPasswordEncoder.matches("superadmin", adminEntity.getPassword())).willReturn(true);
     	try {
 			then(accountService.comparePassword("superadmin", phone)).isTrue();
@@ -253,7 +253,7 @@ class AccountServiceJPATest {
 		ArgumentCaptor<Account> argumentCaptor = ArgumentCaptor.forClass(Account.class);
 		org.mockito.BDDMockito.then(accountRepository).should().saveAndFlush(argumentCaptor.capture());
         
-		given(accountRepository.findByPhone(phone)).willReturn(adminEntity);
+		given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
 		try {
 			then(accountService.verifyAccount(phone, adminEntity.getPhone())).isTrue();
 		}

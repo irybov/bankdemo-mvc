@@ -14,6 +14,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.PersistenceException;
@@ -122,7 +123,7 @@ class AccountServiceDAOTest {
 				.map(source -> modelMapper.map(source, BillResponse.class))
 				.collect(Collectors.toList());
     	given(billService.getAll(anyInt())).willReturn(dtos);    	
-    	org.assertj.core.api.BDDAssertions.then(accountService.getBills(anyInt())).hasSize(3);
+    	org.assertj.core.api.BDDAssertions.then(billService.getAll(anyInt())).hasSize(3);
 //    	verify(accountDAO).getById(anyInt());
     	verify(billService).getAll(anyInt());    	
     }
@@ -130,8 +131,8 @@ class AccountServiceDAOTest {
     @Test
     void can_get_phone_if_presents() {
         
-        given(accountDAO.getPhone(phone)).willReturn(phone);
-        org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone))
+        given(accountDAO.getPhone(phone)).willReturn(Optional.of(phone));
+        org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone).get())
         									.isExactlyInstanceOf(String.class)
         									.hasSize(phone.length());
         verify(accountDAO).getPhone(phone);

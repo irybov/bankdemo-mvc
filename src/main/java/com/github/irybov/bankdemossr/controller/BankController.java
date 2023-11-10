@@ -219,7 +219,7 @@ public class BankController extends BaseController {
 		try {
 			bill = accountService.addBill(params.get("phone"), params.get("currency"));
 		}
-		catch (Exception exc) {
+		catch (RuntimeException exc) {
 			log.error(exc.getMessage(), exc);
 		}
 		response.setStatus(HttpServletResponse.SC_CREATED);

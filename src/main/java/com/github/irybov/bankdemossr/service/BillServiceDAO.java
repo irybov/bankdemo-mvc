@@ -50,7 +50,7 @@ public class BillServiceDAO implements BillService {
 	public BillResponse getBillDTO(int id) throws EntityNotFoundException {
 		return modelMapper.map(getBill(id), BillResponse.class);
 	}
-	//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
+//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
 	Bill getBill(int id) throws EntityNotFoundException {
 		Bill bill = billDAO.getBill(id);
 		if(bill == null) throw new EntityNotFoundException("Target bill with id: " + id + " not found");

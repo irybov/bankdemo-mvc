@@ -44,7 +44,7 @@ public class AccountServiceJPA implements AccountService {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
-	public void saveAccount(AccountRequest accountRequest) throws Exception {
+	public void saveAccount(AccountRequest accountRequest) throws RuntimeException {
 		
 //		LocalDate birthday = LocalDate.parse(accountRequestDTO.getBirthday());
 		if (accountRequest.getBirthday().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
@@ -65,10 +65,9 @@ public class AccountServiceJPA implements AccountService {
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public AccountResponse getFullDTO(String phone) throws EntityNotFoundException {
-		Account account = accountRepository.getWithBills(phone);
-		if(account == null) {
-			throw new EntityNotFoundException("Account with phone " + phone + " not found");
-		}
+		Optional<Account> optional = accountRepository.getWithBills(phone);
+		Account account = optional.orElseThrow(() -> 
+				new EntityNotFoundException("Account with phone " + phone + " not found"));
 		AccountResponse dto = modelMapper.map(account, AccountResponse.class);
 /*		dto.setBills(account.getBills().stream()
 				.map(source -> modelMapper.map(source, BillResponse.class))
@@ -79,14 +78,12 @@ public class AccountServiceJPA implements AccountService {
 	public AccountResponse getAccountDTO(String phone) throws EntityNotFoundException {
 		return modelMapper.map(getAccount(phone), AccountResponse.class);
 	}
-	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+//	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
 	Account getAccount(String phone) throws EntityNotFoundException {
-		Account account = accountRepository.findByPhone(phone);
-		if(account == null) {
-			throw new EntityNotFoundException("Account with phone " + phone + " not found");
-		}
+		Optional<Account> optional = accountRepository.findByPhone(phone);
+		Account account = optional.orElseThrow(() -> 
+				new EntityNotFoundException("Account with phone " + phone + " not found"));
 		return account;
-//		return accountRepository.getByPhone(phone);
 	}
 /*	@Transactional(readOnly = true)
 	public AccountResponseDTO getById(int id) {
@@ -108,18 +105,18 @@ public class AccountServiceJPA implements AccountService {
 		return true;
 	}
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
-	public String getPhone(String phone){
+	public Optional<String> getPhone(String phone){
 		return accountRepository.getPhone(phone);
 	}
-	@Transactional(readOnly = true, noRollbackFor = Exception.class)
+/*	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public List<BillResponse> getBills(int id){
 //		List<Bill> bills = accountRepository.getById(id).getBills();
 //		return bills.stream().map(BillResponseDTO::new).collect(Collectors.toList());		
 		return billService.getAll(id);
 		
-	}
+	}*/
 	
-	public BillResponse addBill(String phone, String currency) throws Exception {
+	public BillResponse addBill(String phone, String currency) throws RuntimeException {
 		Account account = getAccount(phone);
 		Bill bill = new Bill(currency, true, account);
 		billService.saveBill(bill);
