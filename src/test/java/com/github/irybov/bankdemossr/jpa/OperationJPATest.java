@@ -1,4 +1,4 @@
-package com.github.irybov.bankdemossr.repository;
+package com.github.irybov.bankdemossr.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,18 +24,18 @@ import org.springframework.test.context.jdbc.Sql;
 
 import com.github.irybov.bankdemossr.controller.dto.OperationResponse;
 import com.github.irybov.bankdemossr.entity.Operation;
+import com.github.irybov.bankdemossr.jpa.OperationJPA;
 import com.github.irybov.bankdemossr.page.OperationPage;
-import com.github.irybov.bankdemossr.repository.OperationRepository;
 import com.github.irybov.bankdemossr.util.OperationSpecifications;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql("/test-operations-h2.sql")
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataJpaTest
-class OperationRepositoryTest {
+class OperationJPATest {
 	
 	@Autowired
-	private OperationRepository operationRepository;
+	private OperationJPA operationJPA;
 
 	//@Execution(ExecutionMode.CONCURRENT)
 	@ParameterizedTest
@@ -44,7 +44,7 @@ class OperationRepositoryTest {
 		
 	    Comparator<Operation> compareById = Comparator.comparing(Operation::getId).reversed();	
 		List<Operation> operations =
-				operationRepository.findBySenderOrRecipientOrderByIdDesc(sender, recipient);
+				operationJPA.findBySenderOrRecipientOrderByIdDesc(sender, recipient);
 		assertThat(operations.size()).isEqualTo(quantity);
 		assertThat(operations).isSortedAccordingTo((compareById));
 	}
@@ -60,7 +60,7 @@ class OperationRepositoryTest {
 				page.getSortDirection(), page.getSortBy());
 		
 		ModelMapper modelMapper = new ModelMapper();
-		Page<OperationResponse> resultPage = operationRepository.findAll
+		Page<OperationResponse> resultPage = operationJPA.findAll
 				(Specification.where(OperationSpecifications.hasAction(action)
 				.and(OperationSpecifications.hasOwner(id))
 				.and(OperationSpecifications.amountBetween(minval, maxval))

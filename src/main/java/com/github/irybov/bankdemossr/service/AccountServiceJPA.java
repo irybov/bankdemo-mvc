@@ -23,7 +23,7 @@ import com.github.irybov.bankdemossr.controller.dto.BillResponse;
 import com.github.irybov.bankdemossr.entity.Account;
 import com.github.irybov.bankdemossr.entity.Bill;
 import com.github.irybov.bankdemossr.exception.RegistrationException;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.security.Role;
 
 @Service
@@ -35,7 +35,7 @@ public class AccountServiceJPA implements AccountService {
 //	@Autowired
 //	AccountServiceJPA accountService;
 	@Autowired
-	private AccountRepository accountRepository;
+	private AccountJPA accountJPA;
 	
 	@Autowired
 	@Qualifier("billServiceAlias")
@@ -56,7 +56,7 @@ public class AccountServiceJPA implements AccountService {
 				bCryptPasswordEncoder.encode(accountRequest.getPassword()), true);
 		account.addRole(Role.CLIENT);
 		try {
-			accountRepository.saveAndFlush(account);
+			accountJPA.saveAndFlush(account);
 		}
 		catch (RuntimeException exc) {
 			throw new DataIntegrityViolationException("This number is already in use.");
@@ -65,7 +65,7 @@ public class AccountServiceJPA implements AccountService {
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public AccountResponse getFullDTO(String phone) throws EntityNotFoundException {
-		Optional<Account> optional = accountRepository.getWithBills(phone);
+		Optional<Account> optional = accountJPA.getWithBills(phone);
 		Account account = optional.orElseThrow(() -> 
 				new EntityNotFoundException("Account with phone " + phone + " not found"));
 		AccountResponse dto = modelMapper.map(account, AccountResponse.class);
@@ -80,7 +80,7 @@ public class AccountServiceJPA implements AccountService {
 	}
 //	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
 	Account getAccount(String phone) throws EntityNotFoundException {
-		Optional<Account> optional = accountRepository.findByPhone(phone);
+		Optional<Account> optional = accountJPA.findByPhone(phone);
 		Account account = optional.orElseThrow(() -> 
 				new EntityNotFoundException("Account with phone " + phone + " not found"));
 		return account;
@@ -94,7 +94,7 @@ public class AccountServiceJPA implements AccountService {
 	}*/
 	@Transactional(propagation = Propagation.MANDATORY)
 	void updateAccount(Account account) {
-		accountRepository.save(account);
+		accountJPA.save(account);
 	}
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
@@ -106,7 +106,7 @@ public class AccountServiceJPA implements AccountService {
 	}
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public Optional<String> getPhone(String phone){
-		return accountRepository.getPhone(phone);
+		return accountJPA.getPhone(phone);
 	}
 /*	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public List<BillResponse> getBills(int id){
@@ -150,7 +150,7 @@ public class AccountServiceJPA implements AccountService {
 
 	public Boolean changeStatus(int id) {
 
-		Optional<Account> optional = accountRepository.findById(id);
+		Optional<Account> optional = accountJPA.findById(id);
 		Account account = optional.get();
 		if(account.isActive()) {
 			account.setActive(false);
@@ -164,7 +164,7 @@ public class AccountServiceJPA implements AccountService {
 
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	public List<AccountResponse> getAll() {		
-		return accountRepository.getAll()
+		return accountJPA.getAll()
 				.stream()
 				.sorted((a1, a2) -> a1.getId() - a2.getId())
 				.map(source -> modelMapper.map(source, AccountResponse.class))

@@ -28,7 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.github.irybov.bankdemossr.dao.AccountDAO;
 import com.github.irybov.bankdemossr.entity.Account;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.service.AccountService;
 import com.github.irybov.bankdemossr.service.AccountServiceDAO;
 import com.github.irybov.bankdemossr.service.AccountServiceJPA;
@@ -37,7 +37,7 @@ import com.github.irybov.bankdemossr.service.AccountServiceJPA;
 class AccountDetailsServiceTest {
 
 	@Mock
-	private AccountRepository accountRepository;
+	private AccountJPA accountJPA;
 	@Mock
 	private AccountDAO accountDAO;
 /*	@MockBean
@@ -56,7 +56,7 @@ class AccountDetailsServiceTest {
 
     	autoClosable = MockitoAnnotations.openMocks(this);
     	accountDetailsService = new AccountDetailsService();
-    	ReflectionTestUtils.setField(accountDetailsService, "repository", accountRepository);
+    	ReflectionTestUtils.setField(accountDetailsService, "jpa", accountJPA);
     	ReflectionTestUtils.setField(accountDetailsService, "dao", accountDAO);
 //    	ReflectionTestUtils.setField(accountDetailsService, "accountService", accountService);
 //    	ReflectionTestUtils.setField(accountDetailsService, "impl", impl);
@@ -74,14 +74,14 @@ class AccountDetailsServiceTest {
 		accountDetailsService.setImpl(impl);
 //    	ReflectionTestUtils.setField(accountDetailsService, "impl", impl);
 //		if(accountService instanceof AccountServiceJPA) {
-			when(accountRepository.findByPhone(phone)).thenReturn(Optional.of(adminEntity));
+			when(accountJPA.findByPhone(phone)).thenReturn(Optional.of(adminEntity));
 			UserDetails details = accountDetailsService.loadUserByUsername(phone);
 			assertThat(details).isInstanceOf(UserDetails.class);
 			assertThat(details.getAuthorities().isEmpty()).isFalse();
 			assertThat(details.isEnabled()).isTrue();
 			assertThat(BCrypt.checkpw("superadmin", details.getPassword())).isTrue();
 			assertThat(details.getUsername()).isEqualTo(phone);
-			verify(accountRepository).findByPhone(phone);
+			verify(accountJPA).findByPhone(phone);
 
 		impl = "DAO";
 		accountDetailsService.setImpl(impl);
@@ -105,11 +105,11 @@ class AccountDetailsServiceTest {
 		impl = "JPA";
     	ReflectionTestUtils.setField(accountDetailsService, "impl", impl);
 //		if(accountService instanceof AccountServiceJPA) {
-			when(accountRepository.findByPhone(phone)).thenReturn(Optional.empty());
+			when(accountJPA.findByPhone(phone)).thenReturn(Optional.empty());
 			assertThatThrownBy(() -> accountDetailsService.loadUserByUsername(phone))
 				.isInstanceOf(UsernameNotFoundException.class)
 				.hasMessage("User " + phone + " not found");
-			verify(accountRepository).findByPhone(phone);
+			verify(accountJPA).findByPhone(phone);
 			
 		impl = "DAO";
 		ReflectionTestUtils.setField(accountDetailsService, "impl", impl);

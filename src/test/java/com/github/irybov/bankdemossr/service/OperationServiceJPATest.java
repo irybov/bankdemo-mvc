@@ -37,8 +37,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.github.irybov.bankdemossr.controller.dto.OperationResponse;
 import com.github.irybov.bankdemossr.entity.Operation;
+import com.github.irybov.bankdemossr.jpa.OperationJPA;
 import com.github.irybov.bankdemossr.page.OperationPage;
-import com.github.irybov.bankdemossr.repository.OperationRepository;
 import com.github.irybov.bankdemossr.service.OperationServiceJPA;
 
 class OperationServiceJPATest {
@@ -46,7 +46,7 @@ class OperationServiceJPATest {
 	@Spy
 	private ModelMapper modelMapper;
 	@Mock
-	private OperationRepository operationRepository;
+	private OperationJPA operationJPA;
 	@InjectMocks
 	private OperationServiceJPA operationService;
 	
@@ -65,7 +65,7 @@ class OperationServiceJPATest {
 	void set_up() {
 		autoClosable = MockitoAnnotations.openMocks(this);
 		operationService = new OperationServiceJPA();
-		ReflectionTestUtils.setField(operationService, "operationRepository", operationRepository);
+		ReflectionTestUtils.setField(operationService, "operationJPA", operationJPA);
 		ReflectionTestUtils.setField(operationService, "modelMapper", modelMapper);
 	}
 
@@ -86,9 +86,9 @@ class OperationServiceJPATest {
 	
 	@Test
 	void can_get_single_entity() {
-		when(operationRepository.getById(anyLong())).thenReturn(operation);
+		when(operationJPA.getById(anyLong())).thenReturn(operation);
 		assertThat(operationService.getOne(anyLong())).isExactlyInstanceOf(OperationResponse.class);
-		verify(operationRepository).getById(anyLong());
+		verify(operationJPA).getById(anyLong());
 	}
 	
 	@Test
@@ -100,14 +100,14 @@ class OperationServiceJPATest {
 				.collect(Collectors.toList());
 		final int id = new Random().nextInt();
 		
-		when(operationRepository.findBySenderOrRecipientOrderByIdDesc(id, id))
+		when(operationJPA.findBySenderOrRecipientOrderByIdDesc(id, id))
 			.thenReturn(operations);
 		
 		List<OperationResponse> dtos = operationService.getAll(id);
 		assertAll(
 				() -> assertThat(dtos).hasSameClassAs(new ArrayList<OperationResponse>()),
 				() -> assertThat(dtos.size()).isEqualTo(operations.size()));
-		verify(operationRepository).findBySenderOrRecipientOrderByIdDesc(id, id);
+		verify(operationJPA).findBySenderOrRecipientOrderByIdDesc(id, id);
 	}
 	
 	@Test
@@ -118,7 +118,7 @@ class OperationServiceJPATest {
 				.limit(size)
 				.collect(Collectors.toList());			
 		Page<Operation> result = new PageImpl<Operation>(operations);
-		when(operationRepository.findAll(any(Specification.class), any(Pageable.class)))
+		when(operationJPA.findAll(any(Specification.class), any(Pageable.class)))
 				.thenReturn(result);
 
 		final int id = new Random().nextInt();
@@ -132,7 +132,7 @@ class OperationServiceJPATest {
 		assertThat(dtos)
 			.hasSameClassAs(new PageImpl<OperationResponse>(new ArrayList<OperationResponse>()));
 		assertThat(dtos.getContent().size()).isEqualTo(size);
-		verify(operationRepository).findAll(any(Specification.class), any(Pageable.class));
+		verify(operationJPA).findAll(any(Specification.class), any(Pageable.class));
 	}
 	
     @AfterEach

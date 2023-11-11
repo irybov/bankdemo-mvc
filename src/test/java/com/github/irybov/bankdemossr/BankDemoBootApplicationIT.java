@@ -68,7 +68,7 @@ import com.github.irybov.bankdemossr.controller.dto.OperationRequest;
 import com.github.irybov.bankdemossr.controller.dto.PasswordRequest;
 import com.github.irybov.bankdemossr.dao.AccountDAO;
 import com.github.irybov.bankdemossr.entity.Account;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.service.AccountService;
 import com.github.irybov.bankdemossr.service.AccountServiceDAO;
 import com.github.irybov.bankdemossr.service.AccountServiceJPA;
@@ -161,7 +161,7 @@ public class BankDemoBootApplicationIT {
 	    @Test
 	    void can_get_swagger_html() throws Exception {
 
-	        mockMVC.perform(get("/swagger-ui/index.html"))
+	        mockMVC.perform(get("/swagger-ui.html"))
 	        	.andExpect(status().isOk());
 	    }
 		
@@ -191,7 +191,7 @@ public class BankDemoBootApplicationIT {
 		@Qualifier("accountServiceAlias")
 		private AccountService accountService;
 		@Autowired
-		private AccountRepository repository;
+		private AccountJPA jpa;
 		@Autowired
 		private AccountDAO dao;
 		
@@ -250,9 +250,9 @@ public class BankDemoBootApplicationIT {
 			
 			Account account = null;
 			if(accountService instanceof AccountServiceJPA) {
-				account = repository.findByPhone(PHONE).get();
+				account = jpa.findByPhone(PHONE).get();
 				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
-				repository.saveAndFlush(account);
+				jpa.saveAndFlush(account);
 			}
 			else if(accountService instanceof AccountServiceDAO) {
 				account = dao.getAccount(PHONE);
@@ -437,7 +437,7 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void can_change_account_status() throws Exception {
 			
-			mockMVC.perform(get("/accounts/status/{id}", "1"))
+			mockMVC.perform(patch("/accounts/status/{id}", "1").with(csrf()))
 				.andExpect(status().isOk())
 				.andExpect(content().string(containsString("false")));
 		}
@@ -445,7 +445,7 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void can_change_bill_status() throws Exception {
 			
-			mockMVC.perform(get("/bills/status/{id}", "1"))
+			mockMVC.perform(patch("/bills/status/{id}", "1").with(csrf()))
 				.andExpect(status().isOk())
 				.andExpect(content().string(containsString("false")));
 		}
@@ -547,7 +547,7 @@ public class BankDemoBootApplicationIT {
 		@Qualifier("accountServiceAlias")
 		private AccountService accountService;
 		@Autowired
-		private AccountRepository repository;
+		private AccountJPA jpa;
 		@Autowired
 		private AccountDAO dao;
 		
@@ -721,9 +721,9 @@ public class BankDemoBootApplicationIT {
 			
 			Account account = null;
 			if(accountService instanceof AccountServiceJPA) {
-				account = repository.findByPhone(PHONE).get();
+				account = jpa.findByPhone(PHONE).get();
 				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
-				repository.saveAndFlush(account);
+				jpa.saveAndFlush(account);
 			}
 			else if(accountService instanceof AccountServiceDAO) {
 				account = dao.getAccount(PHONE);
@@ -747,9 +747,9 @@ public class BankDemoBootApplicationIT {
 			
 			Account account = null;
 			if(accountService instanceof AccountServiceJPA) {
-				account = repository.findByPhone(PHONE).get();
+				account = jpa.findByPhone(PHONE).get();
 				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
-				repository.saveAndFlush(account);
+				jpa.saveAndFlush(account);
 			}
 			else if(accountService instanceof AccountServiceDAO) {
 				account = dao.getAccount(PHONE);

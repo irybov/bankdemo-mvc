@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.github.irybov.bankdemossr.controller.MegaController;
 import com.github.irybov.bankdemossr.dao.AccountDAO;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.security.AccountDetailsService;
 import com.github.irybov.bankdemossr.service.AccountService;
 import com.github.irybov.bankdemossr.service.AccountServiceDAO;

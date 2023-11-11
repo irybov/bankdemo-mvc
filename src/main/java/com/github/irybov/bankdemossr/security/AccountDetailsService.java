@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.irybov.bankdemossr.dao.AccountDAO;
 import com.github.irybov.bankdemossr.entity.Account;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.service.AccountService;
 import com.github.irybov.bankdemossr.service.AccountServiceDAO;
 import com.github.irybov.bankdemossr.service.AccountServiceJPA;
@@ -23,7 +23,7 @@ import com.github.irybov.bankdemossr.service.AccountServiceJPA;
 public class AccountDetailsService implements UserDetailsService {
 	
 	@Autowired
-	private AccountRepository repository;
+	private AccountJPA jpa;
 	@Autowired
 	private AccountDAO dao;
 /*	@Autowired
@@ -48,7 +48,7 @@ public class AccountDetailsService implements UserDetailsService {
 		Account account = null;
 		if(impl.equals("JPA")) {
 //		if(accountService instanceof AccountServiceJPA) {
-			Optional<Account> optional = repository.findByPhone(phone);
+			Optional<Account> optional = jpa.findByPhone(phone);
 			account = optional.orElseThrow(() -> 
 					new UsernameNotFoundException("User " + phone + " not found"));			
 		}

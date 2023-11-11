@@ -10,8 +10,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -269,7 +271,7 @@ class AdminControllerTest {
 		
 		when(accountService.changeStatus(anyInt())).thenReturn(false);		
 		
-		mockMVC.perform(get("/accounts/status/{id}", "0"))
+		mockMVC.perform(patch("/accounts/status/{id}", "0").with(csrf()))
 			.andExpect(status().isOk())
 			.andExpect(content().string(containsString("false")));
 		
@@ -281,7 +283,7 @@ class AdminControllerTest {
 		
 		when(billService.changeStatus(anyInt())).thenReturn(false);
 		
-		mockMVC.perform(get("/bills/status/{id}", "0"))
+		mockMVC.perform(patch("/bills/status/{id}", "0").with(csrf()))
 			.andExpect(status().isOk())
 			.andExpect(content().string(containsString("false")));
 		

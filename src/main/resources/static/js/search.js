@@ -1,4 +1,9 @@
 $(document).ready(function(){
+    
+    const token = $("meta[name='_csrf']").attr("content");
+    const header = $("meta[name='_csrf_header']").attr("content");
+    const requestHeaders = {};
+    requestHeaders[header] = token;
 	
     $('#search_form').submit(function (ev) {
         ev.preventDefault();
@@ -23,8 +28,9 @@ $(document).ready(function(){
                     return false;
    				}
      			$.ajax({
-    				type: 'GET',
+    				type: 'PATCH',
     				url: '/bankdemo/accounts/status/'+data.id,
+    				headers: requestHeaders,
      	        	success: function(bool) {
      	        		$('#target_bool').html(bool);
      	        	}
@@ -55,8 +61,9 @@ $(document).ready(function(){
        				}
  					var switcher = '#bill_bool'+rowID;
  	     			$.ajax({
-	 					type: 'GET',
+	 					type: 'PATCH',
 	 					url: '/bankdemo/bills/status/'+rowID,
+	 					headers: requestHeaders,
 	 	 	        	success: function(bool) {
 	 	 	        		$(switcher).html(bool);
 	 	 	        	}

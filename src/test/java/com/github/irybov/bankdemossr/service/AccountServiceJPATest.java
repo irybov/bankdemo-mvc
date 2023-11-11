@@ -46,7 +46,7 @@ import com.github.irybov.bankdemossr.controller.dto.BillResponse;
 import com.github.irybov.bankdemossr.entity.Account;
 import com.github.irybov.bankdemossr.entity.Bill;
 import com.github.irybov.bankdemossr.exception.RegistrationException;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.security.Role;
 import com.github.irybov.bankdemossr.service.AccountServiceJPA;
 import com.github.irybov.bankdemossr.service.BillService;
@@ -65,7 +65,7 @@ class AccountServiceJPATest {
 //	@Mock
 //	AccountServiceJPA accountServiceJPA;
 	@Mock
-	private AccountRepository accountRepository;
+	private AccountJPA accountJPA;
 	@InjectMocks
 	private AccountServiceJPA accountService;
 	
@@ -85,7 +85,7 @@ class AccountServiceJPATest {
     void set_up() {
     	autoClosable = MockitoAnnotations.openMocks(this);
     	accountService = new AccountServiceJPA();
-		ReflectionTestUtils.setField(accountService, "accountRepository", accountRepository);
+		ReflectionTestUtils.setField(accountService, "accountJPA", accountJPA);
 //		ReflectionTestUtils.setField(accountService, "accountService", accountServiceJPA);
 		ReflectionTestUtils.setField(accountService, "bCryptPasswordEncoder", bCryptPasswordEncoder);
 		ReflectionTestUtils.setField(accountService, "billService", billService);
@@ -99,14 +99,14 @@ class AccountServiceJPATest {
     	Bill billOne = new Bill(currency, true, adminEntity);
     	Bill billTwo = new Bill(currency, true, adminEntity);
     	
-    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
+    	given(accountJPA.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	doAnswer(new Answer<Account>() {
 			@Override
 			public Account answer(InvocationOnMock invocation) throws Throwable {
 				adminEntity.addBill(billOne);
 				adminEntity.addBill(billTwo);
 				return adminEntity;
-			}}).when(accountRepository).save(adminEntity);
+			}}).when(accountJPA).save(adminEntity);
     	
     	try {
     		org.assertj.core.api.BDDAssertions.then(accountService.addBill(phone, currency))
@@ -115,7 +115,7 @@ class AccountServiceJPATest {
     	catch (Exception exc) {
 			exc.printStackTrace();
 		}
-    	verify(accountRepository).findByPhone(phone);
+    	verify(accountJPA).findByPhone(phone);
 
 //    	given(accountRepository.getById(anyInt())).willReturn(adminEntity);
     	List<BillResponse> dtos = adminEntity.getBills().stream()
@@ -130,25 +130,25 @@ class AccountServiceJPATest {
     @Test
     void can_get_phone_if_presents() {
         
-        given(accountRepository.getPhone(phone)).willReturn(Optional.of(phone));
+        given(accountJPA.getPhone(phone)).willReturn(Optional.of(phone));
         org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone).get())
         									.isExactlyInstanceOf(String.class)
         									.hasSize(phone.length());
-        verify(accountRepository).getPhone(phone);
+        verify(accountJPA).getPhone(phone);
     }
     
     @Test
     void can_not_get_phone() {
         
-        given(accountRepository.getPhone(phone)).willReturn(null);
+        given(accountJPA.getPhone(phone)).willReturn(null);
         org.assertj.core.api.BDDAssertions.then(accountService.getPhone(phone)).isNull();
-        verify(accountRepository).getPhone(phone);
+        verify(accountJPA).getPhone(phone);
     }
 	
     @Test
     void can_get_single_account() {
 
-		given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
+		given(accountJPA.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	try {
     		org.assertj.core.api.BDDAssertions.then(accountService.getAccount(phone))
     											 .isExactlyInstanceOf(Account.class);
@@ -156,7 +156,7 @@ class AccountServiceJPATest {
     	catch (Exception exc) {
 			exc.printStackTrace();
 		}
-        verify(accountRepository).findByPhone(phone);
+        verify(accountJPA).findByPhone(phone);
     }
     
     @Test
@@ -182,32 +182,32 @@ class AccountServiceJPATest {
     	List<Account> clients = new ArrayList<>();
     	Collections.addAll(clients, vixenEntity, blondeEntity, gingerEntity);
     	
-    	given(accountRepository.getAll()).willReturn(clients);
+    	given(accountJPA.getAll()).willReturn(clients);
     	org.assertj.core.api.BDDAssertions.then(accountService.getAll()).hasSameSizeAs(clients)
     								 .isSortedAccordingTo((a1, a2) -> a1.getId() - a2.getId())
     								 .containsAll(new ArrayList<AccountResponse>());
-    	org.mockito.BDDMockito.then(accountRepository).should().getAll();
+    	org.mockito.BDDMockito.then(accountJPA).should().getAll();
     }
     
     @Test
     void can_change_status() {
     	
-    	given(accountRepository.findById(anyInt())).willReturn(Optional.of(adminEntity));
+    	given(accountJPA.findById(anyInt())).willReturn(Optional.of(adminEntity));
     	then(accountService.changeStatus(anyInt())).isFalse();
-    	verify(accountRepository).findById(anyInt());
+    	verify(accountJPA).findById(anyInt());
     }
     
     @Test
     void can_change_password() {
     	
     	String password = "nightrider";
-    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
+    	given(accountJPA.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
     	doAnswer(new Answer<Account>() {
 			@Override
 			public Account answer(InvocationOnMock invocation) throws Throwable {
 				adminEntity.setPassword(password);
 				return adminEntity;
-			}}).when(accountRepository).save(adminEntity);
+			}}).when(accountJPA).save(adminEntity);
     	
     	try {
 			accountService.changePassword(phone, password);
@@ -215,14 +215,14 @@ class AccountServiceJPATest {
     	catch (Exception exc) {
 			exc.printStackTrace();
 		}
-    	verify(accountRepository).findByPhone(phone);
+    	verify(accountJPA).findByPhone(phone);
     	org.assertj.core.api.BDDAssertions.then(adminEntity.getPassword()).isEqualTo(password);
     }
     
     @Test
     void password_comparison() {
     	
-    	given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
+    	given(accountJPA.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
 //    	given(bCryptPasswordEncoder.matches("superadmin", adminEntity.getPassword())).willReturn(true);
     	try {
 			then(accountService.comparePassword("superadmin", phone)).isTrue();
@@ -230,7 +230,7 @@ class AccountServiceJPATest {
     	catch (Exception exc) {
 			exc.printStackTrace();
 		}
-    	verify(accountRepository).findByPhone(phone);
+    	verify(accountJPA).findByPhone(phone);
     	verify(bCryptPasswordEncoder).matches("superadmin", adminEntity.getPassword());
     }
     
@@ -251,16 +251,16 @@ class AccountServiceJPATest {
 			exc.printStackTrace();
 		}		
 		ArgumentCaptor<Account> argumentCaptor = ArgumentCaptor.forClass(Account.class);
-		org.mockito.BDDMockito.then(accountRepository).should().saveAndFlush(argumentCaptor.capture());
+		org.mockito.BDDMockito.then(accountJPA).should().saveAndFlush(argumentCaptor.capture());
         
-		given(accountRepository.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
+		given(accountJPA.findByPhone(phone)).willReturn(Optional.ofNullable(adminEntity));
 		try {
 			then(accountService.verifyAccount(phone, adminEntity.getPhone())).isTrue();
 		}
 		catch (Exception exc) {
 			exc.printStackTrace();
 		}
-        org.mockito.BDDMockito.then(accountRepository).should().findByPhone(phone);
+        org.mockito.BDDMockito.then(accountJPA).should().findByPhone(phone);
 	}
 	
 	@Test
@@ -277,11 +277,11 @@ class AccountServiceJPATest {
 		.isThrownBy(() -> {accountService.saveAccount(accountRequestDTO);});
 		
 		accountRequestDTO.setBirthday(LocalDate.now().minusYears(20L));		
-		doThrow(new DataIntegrityViolationException(null)).when(accountRepository).saveAndFlush(adminEntity);
+		doThrow(new DataIntegrityViolationException(null)).when(accountJPA).saveAndFlush(adminEntity);
 		
 		assertThatExceptionOfType(DataIntegrityViolationException.class)
 		.isThrownBy(() -> {accountService.saveAccount(accountRequestDTO);});
-		org.mockito.BDDMockito.then(accountRepository).should().saveAndFlush(adminEntity);
+		org.mockito.BDDMockito.then(accountJPA).should().saveAndFlush(adminEntity);
 	}
     
     @AfterEach

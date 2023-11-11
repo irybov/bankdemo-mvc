@@ -1,4 +1,4 @@
-package com.github.irybov.bankdemossr.repository;
+package com.github.irybov.bankdemossr.jpa;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.github.irybov.bankdemossr.entity.Operation;
 
-public interface OperationRepository extends JpaRepository<Operation, Long>,
+public interface OperationJPA extends JpaRepository<Operation, Long>,
 	JpaSpecificationExecutor<Operation> {
 
 	List<Operation> findBySenderOrRecipientOrderByIdDesc(int sender, int recipient);

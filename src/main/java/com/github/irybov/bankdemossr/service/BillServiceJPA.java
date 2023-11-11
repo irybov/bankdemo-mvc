@@ -16,8 +16,8 @@ import com.github.irybov.bankdemossr.controller.dto.BillResponse;
 import com.github.irybov.bankdemossr.entity.Bill;
 import com.github.irybov.bankdemossr.entity.Operation;
 import com.github.irybov.bankdemossr.exception.PaymentException;
-import com.github.irybov.bankdemossr.repository.BillRepository;
-import com.github.irybov.bankdemossr.repository.OperationRepository;
+import com.github.irybov.bankdemossr.jpa.BillJPA;
+import com.github.irybov.bankdemossr.jpa.OperationJPA;
 
 @Service
 @Transactional
@@ -28,22 +28,22 @@ public class BillServiceJPA implements BillService {
 //	@Autowired
 //	BillServiceJPA billService;
 	@Autowired
-	private BillRepository billRepository;
+	private BillJPA billJPA;
 	@Autowired
-	private OperationRepository operationRepository;
+	private OperationJPA operationJPA;
 	
 	@Transactional(propagation = Propagation.MANDATORY)
 	public void saveBill(Bill bill) {
-		billRepository.saveAndFlush(bill);
+		billJPA.saveAndFlush(bill);
 	}
 	
 	@Transactional(propagation = Propagation.MANDATORY)
 	void updateBill(Bill bill) {
-		billRepository.save(bill);
+		billJPA.save(bill);
 	}
 	
 	public void deleteBill(int id) {
-		billRepository.deleteById(id);
+		billJPA.deleteById(id);
 	}
 	
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
@@ -52,7 +52,7 @@ public class BillServiceJPA implements BillService {
 	}
 //	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
 	Bill getBill(int id) throws EntityNotFoundException {
-		return billRepository.findById(id).orElseThrow
+		return billJPA.findById(id).orElseThrow
 				(()-> new EntityNotFoundException("Target bill with id: " + id + " not found"));
 	}
 	
@@ -65,7 +65,7 @@ public class BillServiceJPA implements BillService {
 		Bill bill = getBill(id);
 		bill.setBalance(bill.getBalance().add(BigDecimal.valueOf(amount)));
 		updateBill(bill);
-		operationRepository.saveAndFlush(operation);
+		operationJPA.saveAndFlush(operation);
 	}
 	
 	public void withdraw(Operation operation) throws PaymentException {
@@ -80,7 +80,7 @@ public class BillServiceJPA implements BillService {
 		}
 		bill.setBalance(bill.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(bill);
-		operationRepository.saveAndFlush(operation);
+		operationJPA.saveAndFlush(operation);
 	}
 	
 	public void transfer(Operation operation) throws PaymentException {
@@ -108,7 +108,7 @@ public class BillServiceJPA implements BillService {
 		sender.setBalance(sender.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(target);
 		updateBill(sender);
-		operationRepository.saveAndFlush(operation);
+		operationJPA.saveAndFlush(operation);
 	}
 	
 	public void external(Operation operation) throws PaymentException {
@@ -126,7 +126,7 @@ public class BillServiceJPA implements BillService {
 		}
 		target.setBalance(target.getBalance().add(BigDecimal.valueOf(amount)));
 		updateBill(target);
-		operationRepository.saveAndFlush(operation);
+		operationJPA.saveAndFlush(operation);
 	}
 	
 	public void outward(Operation operation) throws PaymentException {
@@ -144,7 +144,7 @@ public class BillServiceJPA implements BillService {
 		}
 		sender.setBalance(sender.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(sender);
-		operationRepository.saveAndFlush(operation);
+		operationJPA.saveAndFlush(operation);
 	}
 	
 	public boolean changeStatus(int id) {
@@ -163,7 +163,7 @@ public class BillServiceJPA implements BillService {
 	@Transactional(propagation = Propagation.MANDATORY, readOnly = true, noRollbackFor = Exception.class)
 	public List<BillResponse> getAll(int id) {		
 //		List<Bill> bills = billRepository.getAll(id);
-		List<Bill> bills = billRepository.findByOwnerId(id);
+		List<Bill> bills = billJPA.findByOwnerId(id);
 		return bills.stream().map(source -> modelMapper.map(source, BillResponse.class))
 					.collect(Collectors.toList());		
 	}

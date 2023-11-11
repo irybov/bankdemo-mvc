@@ -1,4 +1,4 @@
-package com.github.irybov.bankdemossr.repository;
+package com.github.irybov.bankdemossr.jpa;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -24,17 +24,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.github.irybov.bankdemossr.entity.Account;
-import com.github.irybov.bankdemossr.repository.AccountRepository;
+import com.github.irybov.bankdemossr.jpa.AccountJPA;
 import com.github.irybov.bankdemossr.security.Role;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 //@TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataJpaTest
-class AccountRepositoryTest {
+class AccountJPATest {
 
 	@Autowired
-	private AccountRepository accountRepository;
+	private AccountJPA accountJPA;
 	
 	private String oldPN;
 	private String newPN;
@@ -42,50 +42,50 @@ class AccountRepositoryTest {
 	
 	@BeforeAll
 	void prepare() {
-		accountRepository.deleteAll();
+		accountJPA.deleteAll();
 		oldPN = new String("0000000000");
 		newPN = new String("9999999999");
 		account = new Account
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		account.addRole(Role.ADMIN);
-		accountRepository.saveAndFlush(account);
+		accountJPA.saveAndFlush(account);
 	}
 	
 	@Test
 //	@Order(1)
 	void check_that_phone_present() {
-        assertThat(accountRepository.getPhone(oldPN).get()).isEqualTo(account.getPhone());
+        assertThat(accountJPA.getPhone(oldPN).get()).isEqualTo(account.getPhone());
 	}
 	
     @Test
 //	@Order(2)
 	void check_that_phone_not_present() {
-		assertThat(accountRepository.getPhone(newPN)).isEmpty();
+		assertThat(accountJPA.getPhone(newPN)).isEmpty();
 	}
 	
 	@Test
 //	@Order(3)
 	void search_by_phone() {
-		Account fromDB = accountRepository.findByPhone(oldPN).get();
+		Account fromDB = accountJPA.findByPhone(oldPN).get();
 		assertThat(fromDB).isEqualTo(account);
-		fromDB = accountRepository.getWithBills(oldPN).get();
+		fromDB = accountJPA.getWithBills(oldPN).get();
 		assertThat(fromDB).isEqualTo(account);
 	}
 	
     @Test
 //	@Order(4)
     void update_and_compare() {    	
-		Account fromDB = accountRepository.findByPhone(oldPN).get();
+		Account fromDB = accountJPA.findByPhone(oldPN).get();
 		fromDB.setPhone(newPN);
-		accountRepository.save(fromDB);
-		Account updated = accountRepository.findByPhone(newPN).get();
+		accountJPA.save(fromDB);
+		Account updated = accountJPA.findByPhone(newPN).get();
 		assertThat(fromDB).isEqualTo(updated);
     }
     
     @Test
 //	@Order(5)
     void check_for_clients_presence() {
-    	List<Account> clients = accountRepository.getAll();
+    	List<Account> clients = accountJPA.getAll();
     	assertThat(clients).isNotNull();
     	assertThat(clients.isEmpty()).isTrue();
     	
@@ -102,9 +102,9 @@ class AccountRepositoryTest {
 		
     	List<Account> whores = new ArrayList<>();
     	Collections.addAll(whores, vixenEntity, blondeEntity, gingerEntity);
-    	accountRepository.saveAll(whores);
+    	accountJPA.saveAll(whores);
     	
-    	clients = accountRepository.getAll();
+    	clients = accountJPA.getAll();
     	assertThat(clients.isEmpty()).isFalse();
     	assertThat(clients.size()).isEqualTo(whores.size());
     }
@@ -116,7 +116,7 @@ class AccountRepositoryTest {
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(DataIntegrityViolationException.class)
-				.isThrownBy(() -> {accountRepository.saveAndFlush(fakeAdmin);});
+				.isThrownBy(() -> {accountJPA.saveAndFlush(fakeAdmin);});
     }
 	
     @AfterAll

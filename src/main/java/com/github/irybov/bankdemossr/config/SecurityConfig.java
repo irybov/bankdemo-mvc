@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 //import javax.sql.DataSource;
 
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -72,7 +71,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     		"/accounts/password"
     };
     private static final String[] ADMIN_LIST_URLS = {
-			"/**/swagger*/**", 
+    		"/configuration/**", 
+			"/swagger*/**", 
 			"/**/api-docs/**", 
 			"/control", 
     		"/accounts/search", 
@@ -82,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/h2-console/**"
     };
 //    private static final String[] REMOTE_LIST_URLS = {
-//			"/*swagger*/**", 
+//			"**/swagger*/**", 
 //			"/**/api-docs/**", 
 //    		"/actuator/**"
 //    };
@@ -146,7 +146,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    .csrf()
 		    .csrfTokenRepository(csrfTokenRepository)
 		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
-		    .ignoringAntMatchers("/bills/external", "/actuator/**", "/**/swagger*/**")
+		    .ignoringAntMatchers("/bills/external", 
+		    					 "/webjars/**", 
+		    					 "/configuration/**", 
+		    					 "/actuator/**", 
+		    					 "/swagger*/**", 
+		    					 "/**/api-docs/**")
 //		    .ignoringAntMatchers(REMOTE_LIST_URLS)
 		        .and()
 			.formLogin()

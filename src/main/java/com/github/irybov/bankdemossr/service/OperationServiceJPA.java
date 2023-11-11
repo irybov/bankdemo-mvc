@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.irybov.bankdemossr.controller.dto.OperationResponse;
 import com.github.irybov.bankdemossr.entity.Operation;
-import com.github.irybov.bankdemossr.repository.OperationRepository;
+import com.github.irybov.bankdemossr.jpa.OperationJPA;
 import com.github.irybov.bankdemossr.util.OperationSpecifications;
 
 @Service
@@ -27,14 +27,14 @@ public class OperationServiceJPA implements OperationService {
 	private ModelMapper modelMapper;
 	
 	@Autowired
-	private OperationRepository operationRepository;
+	private OperationJPA operationJPA;
 	
 	public OperationResponse getOne(long id) {
-		return modelMapper.map(operationRepository.getById(id), OperationResponse.class);
+		return modelMapper.map(operationJPA.getById(id), OperationResponse.class);
 	}
 	public List<OperationResponse> getAll(int id) {
 
-		return operationRepository.findBySenderOrRecipientOrderByIdDesc(id, id)
+		return operationJPA.findBySenderOrRecipientOrderByIdDesc(id, id)
 				.stream()
 				.map(source -> modelMapper.map(source, OperationResponse.class))
 				.collect(Collectors.toList());
@@ -53,7 +53,7 @@ public class OperationServiceJPA implements OperationService {
 //		Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(),
 //											page.getSortDirection(), page.getSortBy());
 		
-		return operationRepository.findAll(Specification.where(OperationSpecifications.hasAction(action)
+		return operationJPA.findAll(Specification.where(OperationSpecifications.hasAction(action)
 				.and(OperationSpecifications.hasOwner(id)).and(OperationSpecifications.amountBetween(minval, maxval))
 				.and(OperationSpecifications.dateBetween(mindate, maxdate))), pageable)
 				.map(source -> modelMapper.map(source, OperationResponse.class));
