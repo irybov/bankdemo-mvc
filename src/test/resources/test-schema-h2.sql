@@ -30,7 +30,7 @@
 --  recipient INTEGER
 --);
 --CREATE TABLE IF NOT EXISTS bankdemo.roles(
---  roles VARCHAR(10) NOT NULL,
+--  role VARCHAR(10) NOT NULL,
 --  account_id INTEGER NOT NULL,
 --  FOREIGN KEY(account_id) REFERENCES bankdemo.accounts(id)
 --);

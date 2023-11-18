@@ -5,7 +5,7 @@ VALUES('1', '1985-08-31', 'Kae', crypt('supervixen', gen_salt('bf', 4)), '111111
 ('1', '1974-07-28', 'Hannah', crypt('bustyblonde', gen_salt('bf', 4)), '2222222222', 'Waddingham', now(), now()),
 ('1', '1995-06-13', 'Ella', crypt('gingerchick', gen_salt('bf', 4)), '3333333333', 'Hughes', now(), now())
 ON CONFLICT ON CONSTRAINT accounts_phone_key DO NOTHING;
-INSERT INTO bankdemo.roles(account_id, roles) SELECT id, 'ADMIN' FROM bankdemo.accounts WHERE phone='0000000000'
+INSERT INTO bankdemo.roles(account_id, role) SELECT id, 'ADMIN' FROM bankdemo.accounts WHERE phone='0000000000'
 UNION SELECT id, 'CLIENT' FROM bankdemo.accounts WHERE phone='1111111111'
 UNION SELECT id, 'CLIENT' FROM bankdemo.accounts WHERE phone='2222222222'
 UNION SELECT id, 'CLIENT' FROM bankdemo.accounts WHERE phone='3333333333'

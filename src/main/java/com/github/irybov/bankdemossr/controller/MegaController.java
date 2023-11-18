@@ -61,6 +61,7 @@ public class MegaController extends BaseController {
 	    }
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/csrf")
     public CsrfToken getToken(CsrfToken token) {
         return token;

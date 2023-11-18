@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bankdemo.operations(
 	bank VARCHAR(30) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS bankdemo.roles(
-	roles VARCHAR(10) NOT NULL,
+	role VARCHAR(10) NOT NULL,
 	account_id INTEGER REFERENCES bankdemo.accounts(id) NOT NULL
 );
 CREATE extension IF NOT EXISTS pgcrypto;

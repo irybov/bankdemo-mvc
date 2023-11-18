@@ -158,9 +158,8 @@ public class AdminController extends BaseController {
 		}
 		catch (PersistenceException exc) {
 			log.error("Database exception: account with phone {} not found", phone, exc);
-			String message = new String("Account with phone " + phone + " not found");
 			
-			Map<String, String> map = Stream.of(new String[][] {{"report", message},})
+			Map<String, String> map = Stream.of(new String[][] {{"report", exc.getMessage()},})
 							.collect(Collectors.toMap(data -> data[0], data -> data[1]));
 			String json = null;
 			try {

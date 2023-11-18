@@ -85,6 +85,7 @@ public class Account{
 	@ElementCollection(targetClass = Role.class, fetch=FetchType.EAGER)
 	@CollectionTable(name="roles", joinColumns = @JoinColumn(name="account_id"))
 	@Enumerated(EnumType.STRING)
+	@Column(name = "role")
 	private Set<Role> roles;
 	
 	public Account(String name, String surname, String phone, LocalDate birthday, String password,

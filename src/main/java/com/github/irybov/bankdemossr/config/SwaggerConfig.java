@@ -34,6 +34,8 @@ import springfox.documentation.service.SecurityScheme;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
@@ -50,22 +52,23 @@ public class SwaggerConfig {
           .securityContexts(Arrays.asList(mySecurityContext()))
           .securitySchemes(Arrays.asList(basicAuthScheme()));
 	}
-	
+    
+    @Bean
+    public SecurityConfiguration security() {
+    	return SecurityConfigurationBuilder.builder().enableCsrfSupport(true).build();
+    }	
 	private SecurityContext mySecurityContext() {
 		return SecurityContext.builder()
 	      .securityReferences(Arrays.asList(basicAuthReference()))
 	      .build();
-	}
-	
+	}	
 	private SecurityScheme basicAuthScheme() {
 		return new BasicAuth("basicAuth");
-	}
-	
+	}	
 	private SecurityReference basicAuthReference() {
 		return new SecurityReference("basicAuth", new AuthorizationScope[0]);
 	}
-    
-    
+        
     private ApiInfo metaData() {
         return new ApiInfoBuilder()
                 .title("Spring Boot (bank demo)")
