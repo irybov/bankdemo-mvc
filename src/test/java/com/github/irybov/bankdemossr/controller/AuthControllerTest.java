@@ -40,6 +40,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -68,7 +69,7 @@ class AuthControllerTest {
 	@Qualifier("accountServiceAlias")
 	private AccountService accountService;
 	@MockBean
-	private AccountDetailsService accountDetailsService;
+	private UserDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	

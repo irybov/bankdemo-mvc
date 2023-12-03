@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,7 +54,7 @@ class MegaControllerTest {
 	@MockBean
 	ApplicationContext context;
 	@MockBean
-	AccountDetailsService details;
+	UserDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	

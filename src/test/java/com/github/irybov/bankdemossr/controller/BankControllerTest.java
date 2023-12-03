@@ -63,6 +63,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -98,7 +99,7 @@ class BankControllerTest {
 	@Qualifier("operationServiceAlias")
 	private OperationService operationService;
 	@MockBean
-	private AccountDetailsService accountDetailsService;
+	private UserDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	@Autowired
