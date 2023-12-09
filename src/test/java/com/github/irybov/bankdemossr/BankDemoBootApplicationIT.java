@@ -1202,7 +1202,7 @@ public class BankDemoBootApplicationIT {
 			XmlMapper xmlMapper = new XmlMapper();
 			OperationRequest dto = new OperationRequest(777, 2, "USD", 0.01, "Demo");
 			mockMVC.perform(post("/bills/external").header("Origin", externalURL)
-													.header("Accept", "application/xml")
+													.accept(MediaType.APPLICATION_XML)
 													.contentType(MediaType.APPLICATION_XML)
 													.content(xmlMapper.writeValueAsString(dto))
 							)

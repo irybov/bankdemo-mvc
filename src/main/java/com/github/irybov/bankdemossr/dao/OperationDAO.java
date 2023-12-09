@@ -59,7 +59,7 @@ public class OperationDAO {
 		return new PageImpl<>(operations, pageable, count);
 	}*/
 	
-	public Page<Operation> getPage(int id, String action, double minval, double maxval,
+	public Page<Operation> getPage(int id, String action, double minval, double maxval, 
 			OffsetDateTime mindate, OffsetDateTime maxdate, Pageable pageable){
 		
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
