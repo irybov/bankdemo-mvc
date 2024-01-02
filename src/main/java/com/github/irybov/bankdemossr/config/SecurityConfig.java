@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 //import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -48,9 +49,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 //	@Autowired
 //	private DataSource dataSource;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 	private final UserDetailsService accountDetailsService;
-	public SecurityConfig(BCryptPasswordEncoder passwordEncoder, UserDetailsService accountDetailsService) {
+	public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsService accountDetailsService) {
 		this.passwordEncoder = passwordEncoder;
 		this.accountDetailsService = accountDetailsService;
 	}
@@ -75,9 +76,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/swagger*/**", 
 			"/**/api-docs/**", 
 			"/control", 
-    		"/accounts/search", 
-    		"/accounts/status", 
-    		"/accounts/list/**", 
+    		"/accounts/search/*", 
+    		"/accounts/status/{id}", 
+    		"/accounts/list/*", 
 			"/operations/**", 
 			"/h2-console/**"
     };

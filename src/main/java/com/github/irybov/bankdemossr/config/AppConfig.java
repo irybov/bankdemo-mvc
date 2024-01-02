@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,7 +41,7 @@ public class AppConfig {
 		return DataSourceBuilder.create().build();
 	}*/
 	@Bean
-	protected BCryptPasswordEncoder bCryptPasswordEncoder() {
+	protected PasswordEncoder bCryptPasswordEncoder() {
 	    return new BCryptPasswordEncoder(4);
 	}
 	
