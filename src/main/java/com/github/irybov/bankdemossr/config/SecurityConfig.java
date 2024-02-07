@@ -98,7 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}*/    
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    	    	
+
 		auth.inMemoryAuthentication()
 			.withUser("remote")
 			.password(passwordEncoder.encode("remote"))

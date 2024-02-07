@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
 
-@Api(description = "Abstcrat controller, parent for all controllers except Mega")
+@Api(description = "Abstcrat controller, parent of all controllers")
 @CrossOrigin(origins="http://"+"${server.address}"+":"+"${server.port}", allowCredentials="true")
 abstract class BaseController {
 	

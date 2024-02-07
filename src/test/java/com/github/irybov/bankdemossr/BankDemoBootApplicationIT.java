@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -112,12 +113,20 @@ public class BankDemoBootApplicationIT {
 	
     @Nested
     class ActuatorAccessIT{
+    	
+		@Autowired
+		@Qualifier("accountServiceAlias")
+		private AccountService accountService;
+		@Autowired
+		private AccountJPA jpa;
+		@Autowired
+		private AccountDAO dao;
 	
-		@WithMockUser(username = "remote", roles = "REMOTE")
+//		@WithMockUser(username = "remote", roles = "REMOTE")
 		@Test
 		void actuator_allowed() throws Exception {
 			
-	        mockMVC.perform(get("/actuator/"))
+	        mockMVC.perform(get("/actuator/").with(httpBasic("remote", "remote")))
 	    		.andExpect(status().isOk());
 		}
 		
@@ -128,11 +137,23 @@ public class BankDemoBootApplicationIT {
 	    		.andExpect(status().isUnauthorized());
 		}
 		
-		@WithMockUser(username = "3333333333", roles = {"ADMIN", "CLIENT"})
+//		@WithMockUser(username = "3333333333", roles = {"ADMIN", "CLIENT"})
 		@Test
 		void actuator_forbidden() throws Exception {
 			
-	        mockMVC.perform(get("/actuator/"))
+			Account account = null;
+			if(accountService instanceof AccountServiceJPA) {
+				account = jpa.findByPhone("3333333333").get();
+				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
+				jpa.saveAndFlush(account);
+			}
+			else if(accountService instanceof AccountServiceDAO) {
+				account = dao.getAccount("3333333333");
+				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
+				dao.updateAccount(account);
+			}
+			
+	        mockMVC.perform(get("/actuator/").with(httpBasic("3333333333", "gingerchick")))
 	    		.andExpect(status().isForbidden());
 		}
 		

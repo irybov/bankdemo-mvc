@@ -18,6 +18,7 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
@@ -69,6 +70,7 @@ import com.github.irybov.bankdemossr.controller.dto.BillResponse;
 import com.github.irybov.bankdemossr.controller.dto.OperationRequest;
 import com.github.irybov.bankdemossr.controller.dto.PasswordRequest;
 import com.github.irybov.bankdemossr.entity.Operation;
+import com.github.irybov.bankdemossr.exception.PaymentException;
 import com.github.irybov.bankdemossr.misc.Action;
 import com.github.irybov.bankdemossr.misc.EmitterPayload;
 import com.github.irybov.bankdemossr.service.AccountService;
@@ -181,7 +183,7 @@ public class BankController extends BaseController {
 //			account = accountService.getAccountDTO(current);
 			account = accountService.getFullDTO(current);
 		}
-		catch (EntityNotFoundException exc) {
+		catch (PersistenceException exc) {
 			log.error(exc.getMessage(), exc);
 		}
 //		List<BillResponseDTO> bills = accountService.getBills(account.getId());
@@ -219,7 +221,7 @@ public class BankController extends BaseController {
 		try {
 			bill = accountService.addBill(params.get("phone"), params.get("currency"));
 		}
-		catch (RuntimeException exc) {
+		catch (PersistenceException exc) {
 			log.error(exc.getMessage(), exc);
 		}
 		response.setStatus(HttpServletResponse.SC_CREATED);
@@ -474,7 +476,7 @@ public class BankController extends BaseController {
 			billService.external(operation);
 			log.info("{} has been recieved to bill {}", operation.getAmount(), operation.getRecipient());
 		}
-		catch (Exception exc) {
+		catch (PaymentException exc) {
 			log.warn(exc.getMessage(), exc);
 			return new ResponseEntity<String>(exc.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -564,14 +566,14 @@ public class BankController extends BaseController {
 				return "account/password";
 			}
 		}
-		catch (Exception exc) {
+		catch (PersistenceException exc) {
 			log.error(exc.getMessage(), exc);
 		}
 		
 		try {
 			accountService.changePassword(phone, passwordRequest.getNewPassword());
 		}
-		catch (Exception exc) {
+		catch (PersistenceException exc) {
 			log.error(exc.getMessage(), exc);
 		}
 /*		if(authentication().getAuthorities().stream()

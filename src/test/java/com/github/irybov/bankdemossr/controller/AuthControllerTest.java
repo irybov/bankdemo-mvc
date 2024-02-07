@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
-import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
 
 import org.junit.jupiter.api.Disabled;
 
@@ -189,7 +189,7 @@ class AuthControllerTest {
 	void entity_not_found() throws Exception {
 		
 		String phone = authentication().getName();
-		when(accountService.getAccountDTO(anyString())).thenThrow(new EntityNotFoundException
+		when(accountService.getAccountDTO(anyString())).thenThrow(new PersistenceException
 							("Account with phone " + phone + " not found"));
 		
 		assertThat(phone).isEqualTo("9999999999");

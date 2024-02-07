@@ -95,7 +95,7 @@ public class AuthController extends BaseController {
 			model.addAttribute("success", "Your account has been created");
 			return "auth/login";
 		}
-		catch (RuntimeException exc) {
+		catch (PersistenceException exc) {
 			log.error(exc.getMessage(), exc);
 			response.setStatus(HttpServletResponse.SC_CONFLICT);
 			model.addAttribute("message", exc.getMessage());

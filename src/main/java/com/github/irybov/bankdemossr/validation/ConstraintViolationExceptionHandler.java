@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.github.irybov.bankdemossr.controller.BankController;
 import com.github.irybov.bankdemossr.exception.PaymentException;
 
-//@ControllerAdvice(basePackages = "com.github.irybov.bankdemoboot.controller")
+//@ControllerAdvice(basePackages = "com.github.irybov.bankdemossr.controller")
 @ControllerAdvice(basePackageClasses = BankController.class)
 public class ConstraintViolationExceptionHandler {
 
