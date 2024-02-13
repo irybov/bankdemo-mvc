@@ -62,7 +62,7 @@ public class AuthController extends BaseController {
 	
 	@ApiOperation("Returns welcome html-page")
 	@GetMapping("/success")
-	public String getRegistrationForm(Model model, RedirectAttributes redirectAttributes) {
+	public String getWelcome(Model model, RedirectAttributes redirectAttributes) {
 		
 		AccountResponse account;
 		try {

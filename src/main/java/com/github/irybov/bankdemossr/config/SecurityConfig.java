@@ -61,6 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     		"/login", 
     		"/register", 
     		"/confirm", 
+//    		"/success", 
     		"/webjars/**", 
     		"/css/**", 
     		"/js/**", 
@@ -98,12 +99,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}*/    
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
+/*
 		auth.inMemoryAuthentication()
 			.withUser("remote")
 			.password(passwordEncoder.encode("remote"))
 			.roles("REMOTE");
-		
+	*/	
         DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
         dao.setUserDetailsService(accountDetailsService);
         dao.setPasswordEncoder(passwordEncoder);
@@ -141,7 +142,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.mvcMatchers(WHITE_LIST_URLS).permitAll()
 			.mvcMatchers(SHARED_LIST_URLS).hasAnyRole("ADMIN", "CLIENT")
 			.mvcMatchers(ADMIN_LIST_URLS).hasRole("ADMIN")
-			.antMatchers("/actuator/**").hasRole("REMOTE")
+//			.antMatchers("/actuator/**").hasRole("REMOTE")
 			.anyRequest().authenticated()
 				.and()
 		    .csrf()
@@ -169,9 +170,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .invalidateHttpSession(true)
             .clearAuthentication(true)
             .deleteCookies("JSESSIONID")
-			.logoutSuccessUrl("/home")
-				.and()
-			.httpBasic();
+			.logoutSuccessUrl("/home");
+//				.and()
+//			.httpBasic();
 //			.and().cors().configurationSource(corsConfigurationSource());
 //		http.headers().frameOptions().disable();
 	}
@@ -181,35 +182,39 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        web.ignoring().antMatchers("/**/swagger*/**", "/**/api-docs/**");
 //    }
     
-//    @Configuration
-//    @Order(Ordered.HIGHEST_PRECEDENCE)
-//    public static class RemoteSecurityConfig extends WebSecurityConfigurerAdapter {
-//    	
-//        @Override
-//        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        	
-//    		auth.inMemoryAuthentication()
-//    			.withUser("remote")
-//    			.password(BCrypt.hashpw("remote", BCrypt.gensalt(4)))
-//    			.roles("REMOTE");
-//        }
-//    	
-//    	@Override
-//        protected void configure(HttpSecurity http) throws Exception {
-//    		
-//            http
-//            	.csrf()
+    @Configuration
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public static class RemoteSecurityConfig extends WebSecurityConfigurerAdapter {
+    	
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        	
+    		auth.inMemoryAuthentication()
+    			.withUser("remote")
+    			.password(BCrypt.hashpw("remote", BCrypt.gensalt(4)))
+    			.roles("REMOTE")
+    				.and()
+        		.withUser("admin")
+        		.password(BCrypt.hashpw("admin", BCrypt.gensalt(4)))
+        		.roles("ADMIN");
+        }
+    	
+    	@Override
+        protected void configure(HttpSecurity http) throws Exception {
+    		
+            http
+            	.csrf()
 //    		    .ignoringAntMatchers(REMOTE_LIST_URLS)
-//    		    .disable()
-////                .antMatcher("/*swagger*/**")
-//                .authorizeRequests()
+    		    .disable()
+                .antMatcher("/actuator/**")
+                .authorizeRequests()
 //                .antMatchers(REMOTE_LIST_URLS).hasRole("REMOTE")
-//                .anyRequest().hasRole("REMOTE")
-//        			.and()
-//                .httpBasic();
-//        }
-//    	
-//    }*/
+                .anyRequest().hasRole("REMOTE")
+        			.and()
+                .httpBasic();
+        }
+    	
+    }
 	
 /*    @Override
     public void addCorsMappings(CorsRegistry registry) {

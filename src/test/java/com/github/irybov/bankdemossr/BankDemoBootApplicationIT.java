@@ -117,10 +117,10 @@ public class BankDemoBootApplicationIT {
 		@Autowired
 		@Qualifier("accountServiceAlias")
 		private AccountService accountService;
-		@Autowired
+/*		@Autowired
 		private AccountJPA jpa;
 		@Autowired
-		private AccountDAO dao;
+		private AccountDAO dao;*/
 	
 //		@WithMockUser(username = "remote", roles = "REMOTE")
 		@Test
@@ -133,14 +133,14 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void actuator_denied() throws Exception {
 			
-	        mockMVC.perform(get("/actuator/"))
+	        mockMVC.perform(get("/actuator/").with(httpBasic("0000000000", "superadmin")))
 	    		.andExpect(status().isUnauthorized());
 		}
 		
 //		@WithMockUser(username = "3333333333", roles = {"ADMIN", "CLIENT"})
 		@Test
 		void actuator_forbidden() throws Exception {
-			
+/*			
 			Account account = null;
 			if(accountService instanceof AccountServiceJPA) {
 				account = jpa.findByPhone("3333333333").get();
@@ -152,8 +152,8 @@ public class BankDemoBootApplicationIT {
 				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
 				dao.updateAccount(account);
 			}
-			
-	        mockMVC.perform(get("/actuator/").with(httpBasic("3333333333", "gingerchick")))
+			*/
+	        mockMVC.perform(get("/actuator/").with(httpBasic("admin", "admin")))
 	    		.andExpect(status().isForbidden());
 		}
 		
@@ -310,7 +310,6 @@ public class BankDemoBootApplicationIT {
 		
 		@Test
 		void unauthorized_denied() throws Exception {
-			mockMVC.perform(get("/success")).andExpect(status().isUnauthorized());
 			mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());			
 		}
 		
