@@ -193,6 +193,14 @@ public class BankDemoBootApplicationIT {
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));		
 		}
+	    
+	    @WithMockUser(username = "1111111111", roles = "CLIENT")
+	    @Test
+	    void denied_api_docs() throws Exception {
+
+	        mockMVC.perform(get("/v2/api-docs"))
+				.andExpect(status().isForbidden());		
+		}
 
 	    @Disabled
 	    @Test
@@ -1281,7 +1289,7 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void credentials_forbidden() throws Exception {
 			
-	        mockMVC.perform(get("/control"))
+	        mockMVC.perform(put("/control"))
 				.andExpect(status().isForbidden());
 		}
 		

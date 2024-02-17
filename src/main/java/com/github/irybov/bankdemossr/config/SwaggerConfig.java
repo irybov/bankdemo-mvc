@@ -48,16 +48,16 @@ public class SwaggerConfig {
           .select() 
           .apis(RequestHandlerSelectors.basePackage("com.github.irybov.bankdemossr.controller"))
           .paths(PathSelectors.any())
-          .build().apiInfo(metaData())
-          .securityContexts(Arrays.asList(mySecurityContext()))
-          .securitySchemes(Arrays.asList(basicAuthScheme()));
+          .build().apiInfo(metaData());
+//          .securityContexts(Arrays.asList(mySecurityContext()))
+//          .securitySchemes(Arrays.asList(basicAuthScheme()));
 	}
     
     @Bean
     public SecurityConfiguration security() {
     	return SecurityConfigurationBuilder.builder().enableCsrfSupport(true).build();
     }	
-	private SecurityContext mySecurityContext() {
+/*	private SecurityContext mySecurityContext() {
 		return SecurityContext.builder()
 	      .securityReferences(Arrays.asList(basicAuthReference()))
 	      .build();
@@ -67,7 +67,7 @@ public class SwaggerConfig {
 	}	
 	private SecurityReference basicAuthReference() {
 		return new SecurityReference("basicAuth", new AuthorizationScope[0]);
-	}
+	}*/
         
     private ApiInfo metaData() {
         return new ApiInfoBuilder()

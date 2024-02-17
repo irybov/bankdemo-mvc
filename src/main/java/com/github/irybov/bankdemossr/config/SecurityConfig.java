@@ -148,7 +148,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    .csrf()
 		    .csrfTokenRepository(csrfTokenRepository)
 		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
-		    .ignoringAntMatchers("/bills/external", "/actuator/**")
+		    .ignoringAntMatchers("/bills/external")
 //		    					 "/webjars/**", 
 //		    					 "/configuration/**", 
 //		    					 "/swagger*/**", 
@@ -170,9 +170,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .invalidateHttpSession(true)
             .clearAuthentication(true)
             .deleteCookies("JSESSIONID")
-			.logoutSuccessUrl("/home");
-//				.and()
-//			.httpBasic();
+			.logoutSuccessUrl("/home")
+				.and()
+			.httpBasic().disable();
 //			.and().cors().configurationSource(corsConfigurationSource());
 //		http.headers().frameOptions().disable();
 	}
