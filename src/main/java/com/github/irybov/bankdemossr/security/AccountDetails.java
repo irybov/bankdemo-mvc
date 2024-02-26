@@ -1,15 +1,31 @@
 package com.github.irybov.bankdemossr.security;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.github.irybov.bankdemossr.entity.Account;
 
 public class AccountDetails implements UserDetails {
 
-	private static final long serialVersionUID = 1L;
+	@Override
+	public int hashCode() {
+		return Objects.hash(account);
+	}
+	@Override
+	public boolean equals(Object obj) {
+
+		if(obj instanceof AccountDetails) {
+			AccountDetails other = (AccountDetails) obj;
+			return Objects.equals(account, other.account);
+		}
+		return false;
+	}
+
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final Account account;
 	public AccountDetails(Account account) {
 		this.account = account;

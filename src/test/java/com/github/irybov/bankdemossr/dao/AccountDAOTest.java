@@ -113,7 +113,7 @@ class AccountDAOTest {
 		blondeEntity.addRole(Role.CLIENT);
 		Account gingerEntity = new Account
 		("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", true);
-		gingerEntity.addRole(Role.CLIENT);
+//		gingerEntity.addRole(Role.CLIENT);
 		gingerEntity.addRole(Role.ADMIN);
 		
     	List<Account> whores = new ArrayList<>();
@@ -122,7 +122,7 @@ class AccountDAOTest {
     	
     	clients = accountDAO.getAll();
     	assertThat(clients.isEmpty()).isFalse();
-    	assertThat(clients.size()).isEqualTo(whores.size());
+    	assertThat(clients.size()).isEqualTo(whores.size() - 1);
     }
     
     @Test

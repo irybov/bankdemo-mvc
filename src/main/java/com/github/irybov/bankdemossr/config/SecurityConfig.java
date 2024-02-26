@@ -133,11 +133,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 
 		http
-//			.sessionManagement()
+			.sessionManagement()
+//			.invalidSessionUrl("/login?invalid-session=true")
+	        .maximumSessions(1)
+//	        .expiredUrl("/login?invalid-session=true")
+	        .maxSessionsPreventsLogin(true)
+	        	.and()
 //	        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //			.cors(Customizer.withDefaults())
 //			.cors()
-//			.and()
+	        	.and()
 			.authorizeRequests()
 			.mvcMatchers(WHITE_LIST_URLS).permitAll()
 			.mvcMatchers(SHARED_LIST_URLS).hasAnyRole("ADMIN", "CLIENT")

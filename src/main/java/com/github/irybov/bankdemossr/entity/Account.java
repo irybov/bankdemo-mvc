@@ -35,7 +35,7 @@ import lombok.ToString;
 
 @Entity
 @Table(name="accounts", schema = "bankdemo",
-uniqueConstraints={@UniqueConstraint(columnNames={"phone"})})
+	uniqueConstraints={@UniqueConstraint(columnNames={"phone"})})
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(of = "phone", cacheStrategy=CacheStrategy.LAZY)
