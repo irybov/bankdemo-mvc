@@ -61,7 +61,7 @@ class OperationJPATest {
 		
 		ModelMapper modelMapper = new ModelMapper();
 		Page<OperationResponse> resultPage = operationJPA.findAll
-				(Specification.where(OperationSpecifications.hasAction(action)
+				(OperationSpecifications.orderBy(OperationSpecifications.hasAction(action)
 				.and(OperationSpecifications.hasOwner(id))
 				.and(OperationSpecifications.amountBetween(minval, maxval))
 				.and(OperationSpecifications.dateBetween(mindate, maxdate))), pageable)

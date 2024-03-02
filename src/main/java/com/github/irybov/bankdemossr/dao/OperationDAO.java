@@ -72,13 +72,16 @@ public class OperationDAO {
 		Predicate amountBetween = builder.between(root.get(Operation_.AMOUNT), minval, maxval);
 		Predicate dateBetween = builder.between(root.get(Operation_.CREATED_AT), mindate, maxdate);
 		Predicate query = builder.and(hasAction, hasOwner, amountBetween, dateBetween);
-		result.where(query);
-		result.orderBy(builder.desc(root.get(Operation_.ID)));
 		
-		TypedQuery<Operation> typed = entityManager.createQuery(result);
-		List<Operation> operations = typed.getResultList();
-        typed.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        typed.setMaxResults(pageable.getPageSize());
+		result.where(query);
+		result.orderBy(builder.desc(root.get(Operation_.ID)));		
+		result.select(root);
+		List<Operation> operations = entityManager.createQuery(result).getResultList();
+		
+//		TypedQuery<Operation> typed = entityManager.createQuery(result);
+//		List<Operation> operations = typed.getResultList();
+//        typed.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+//        typed.setMaxResults(pageable.getPageSize());
 		
 /*		long count = (long) entityManager.createQuery("SELECT COUNT(o.id) FROM Operation o "
 				+ "WHERE o.action LIKE :action AND (o.sender=:id OR o.recipient=:id)")

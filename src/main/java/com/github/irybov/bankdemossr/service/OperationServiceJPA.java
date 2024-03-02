@@ -53,10 +53,12 @@ public class OperationServiceJPA implements OperationService {
 //		Pageable pageable = PageRequest.of(page.getPageNumber(), page.getPageSize(),
 //											page.getSortDirection(), page.getSortBy());
 		
-		return operationJPA.findAll(Specification.where(OperationSpecifications.hasAction(action)
-				.and(OperationSpecifications.hasOwner(id)).and(OperationSpecifications.amountBetween(minval, maxval))
+		return operationJPA.findAll(OperationSpecifications.orderBy
+					(OperationSpecifications.hasAction(action)
+				.and(OperationSpecifications.hasOwner(id))
+				.and(OperationSpecifications.amountBetween(minval, maxval))
 				.and(OperationSpecifications.dateBetween(mindate, maxdate))), pageable)
-				.map(source -> modelMapper.map(source, OperationResponse.class));
+					.map(source -> modelMapper.map(source, OperationResponse.class));
 	}
 	
 }

@@ -36,4 +36,10 @@ public class OperationSpecifications {
 									(Operation_.CREATED_AT), mindate, maxdate);};
 	}
 	
+	public static Specification<Operation> orderBy(Specification<Operation> spec){
+		
+		return(root, query, builder) -> {query.orderBy(builder.desc(root.get(Operation_.ID)));
+												return spec.toPredicate(root, query, builder);};
+	}
+	
 }
