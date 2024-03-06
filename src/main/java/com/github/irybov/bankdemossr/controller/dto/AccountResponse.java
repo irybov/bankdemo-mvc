@@ -32,7 +32,7 @@ public class AccountResponse {
 	private String surname;
 	private String phone;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate birthday;
 //	private String password;
 	@JsonManagedReference

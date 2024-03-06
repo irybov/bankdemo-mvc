@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -310,17 +311,20 @@ public class AdminController extends BaseController {
 	@GetMapping("/operations/list/{id}")
 	@ResponseBody
 	public Page<OperationResponse> getOperationsList(@PathVariable int id,
-			@RequestParam Optional<String> mindate, @RequestParam Optional<String> maxdate,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> mindate, 
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> maxdate,
 			@RequestParam Optional<Double> minval, @RequestParam Optional<Double> maxval,
 			@RequestParam Optional<String> action, Pageable pageable) {
 		
-		final String FROM = mindate.orElse("1900-01-01");
-		final String TO = maxdate.orElse(LocalDate.now().toString());
-		LocalDate from = LocalDate.parse(FROM.isEmpty() ? "1900-01-01" : FROM);
-		LocalDate to = LocalDate.parse(TO.isEmpty() ? LocalDate.now().toString() : TO);
+//		final String FROM = mindate.orElse("1900-01-01");
+//		final String TO = maxdate.orElse(LocalDate.now().toString());
+//		LocalDate from = LocalDate.parse(FROM.isEmpty() ? "1900-01-01" : FROM);
+//		LocalDate to = LocalDate.parse(TO.isEmpty() ? LocalDate.now().toString() : TO);
 		
-		OffsetDateTime dateFrom = OffsetDateTime.of(from, LocalTime.MIN, ZoneOffset.UTC);
-		OffsetDateTime dateTo = OffsetDateTime.of(to, LocalTime.MAX, ZoneOffset.UTC);
+		OffsetDateTime dateFrom = OffsetDateTime.of(mindate.orElse(LocalDate.of(1900, 01, 01)), 
+				LocalTime.MIN, ZoneOffset.UTC);
+		OffsetDateTime dateTo = OffsetDateTime.of(maxdate.orElse(LocalDate.now()), 
+				LocalTime.MAX, ZoneOffset.UTC);
 		
 //		OperationPage page = new OperationPage();
 //		page.setPageNumber(pageable.getPageNumber());

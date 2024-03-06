@@ -521,11 +521,11 @@ public class BankDemoBootApplicationIT {
 		void can_get_operations_page() throws Exception {
 			
 			mockMVC.perform(get("/operations/list/{id}", "1")
-							.param("action", "")
-							.param("minval", "")
-							.param("maxval", "")
-							.param("mindate", "")
-							.param("maxdate", "")
+//							.param("action", "")
+//							.param("minval", "")
+//							.param("maxval", "")
+//							.param("mindate", "")
+//							.param("maxdate", "")
 					)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.pageable").exists())

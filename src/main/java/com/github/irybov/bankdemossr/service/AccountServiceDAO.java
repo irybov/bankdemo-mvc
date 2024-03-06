@@ -51,10 +51,10 @@ public class AccountServiceDAO implements AccountService {
 			throw new RegistrationException("You must be 18+ to register");
 		}
 		
-		Account account = new Account(accountRequest.getName(), accountRequest.getSurname(),
-				accountRequest.getPhone(), accountRequest.getBirthday(),
-				bCryptPasswordEncoder.encode(accountRequest.getPassword()), true);
+		Account account = modelMapper.map(accountRequest, Account.class);
+		bCryptPasswordEncoder.encode(accountRequest.getPassword());
 		account.addRole(Role.CLIENT);
+		
 		try {
 			accountDAO.saveAccount(account);
 		}

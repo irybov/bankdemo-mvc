@@ -45,7 +45,7 @@ public class AccountRequest {
 	@NotNull(message = "Please select your date of birth")
 	@Past(message = "Birthday cant be future time")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate birthday;
 
 	@JsonProperty("password")
