@@ -287,7 +287,8 @@ public class BankController extends BaseController {
 	@ApiOperation("Operates money by specified action's type")
 	@PreAuthorize("hasRole('CLIENT')")
 	@PatchMapping("/bills/launch/{id}")
-	public String operateMoney(@PathVariable int id, @RequestParam(required=false) String recipient,
+	public String operateMoney(@PathVariable int id, 
+			@RequestParam(required=false) String recipient,
 			@RequestParam Map<String, String> params, ModelMap modelMap, 
 			RedirectAttributes redirectAttributes, HttpServletResponse response) {
 		

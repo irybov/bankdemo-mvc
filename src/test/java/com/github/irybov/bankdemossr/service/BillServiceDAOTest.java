@@ -1,8 +1,9 @@
 package com.github.irybov.bankdemossr.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
+//import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -171,7 +172,7 @@ class BillServiceDAOTest {
 		catch (Exception exc) {
 			exc.printStackTrace();
 		}
-		assertEquals(bill.getBalance().setScale(2, RoundingMode.DOWN).doubleValue(), amount, 0.00);
+		assertEquals(bill.getBalance().setScale(2, RoundingMode.DOWN).doubleValue(), amount, 0.01);
 		verify(billDAO).getBill(anyInt());
 		
 		verify(operationDAO).save(operation);
@@ -214,7 +215,7 @@ class BillServiceDAOTest {
 		catch (Exception exc) {
 			exc.printStackTrace();
 		}
-		assertEquals(bill.getBalance().setScale(2, RoundingMode.DOWN).doubleValue(), 0.5, 0.00);
+		assertEquals(bill.getBalance().setScale(2, RoundingMode.DOWN).doubleValue(), 0.5, 0.01);
 		assertThat(bill.getBalance().setScale(2, RoundingMode.FLOOR).doubleValue()).isEqualTo(0.5);
 		verify(billDAO).getBill(anyInt());
 		

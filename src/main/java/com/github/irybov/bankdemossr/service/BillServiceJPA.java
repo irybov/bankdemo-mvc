@@ -24,7 +24,7 @@ import com.github.irybov.bankdemossr.jpa.OperationJPA;
 public class BillServiceJPA implements BillService {
 
 	@Autowired
-	private ModelMapper modelMapper;	
+	private ModelMapper modelMapper;
 //	@Autowired
 //	BillServiceJPA billService;
 	@Autowired
