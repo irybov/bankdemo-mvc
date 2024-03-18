@@ -46,9 +46,9 @@ public class Bill {
 	@Column(nullable = false, length=3, updatable = false)
 	private String currency;
 	
-	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH,
-			CascadeType.REFRESH}, fetch=FetchType.EAGER)
-	@JoinColumn(name="account_id", updatable = false)
+	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, 
+			fetch=FetchType.EAGER)
+	@JoinColumn(name="account_id", nullable = false, updatable = false)
 	private Account owner;
 	
 	public Bill(String currency, boolean isActive, Account owner) {		

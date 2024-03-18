@@ -33,4 +33,4 @@ CREATE TABLE IF NOT EXISTS bankdemo.roles(
 	role VARCHAR(10) NOT NULL,
 	account_id INTEGER REFERENCES bankdemo.accounts(id) NOT NULL
 );
-CREATE extension IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

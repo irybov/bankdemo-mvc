@@ -46,6 +46,7 @@ class BillDAOTest {
 		entityManager.createNativeQuery("DELETE FROM {h-schema}bills").executeUpdate();
 		account = new Account
 				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", true);
+		entityManager.persist(account);
 		bill = new Bill("SEA", true, account);
 		billDAO.saveBill(bill);
 	}
@@ -65,7 +66,7 @@ class BillDAOTest {
 		List<Bill> bills = billDAO.getAll();
 		assertThat(bills.size()).isEqualTo(0);
 		
-		bills = billDAO.getByOwner(1);
+		bills = billDAO.getByOwner(4);
 		assertThat(bills.size()).isEqualTo(0);
 	}
 	
