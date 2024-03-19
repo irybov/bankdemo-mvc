@@ -44,6 +44,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -59,7 +60,7 @@ import com.github.irybov.bankdemossr.security.AccountDetailsService;
 import com.github.irybov.bankdemossr.service.AccountService;
 
 @WebMvcTest(AuthController.class)
-//@Import(SecurityConfig.class)
+@Import(BCryptConfig.class)
 class AuthControllerTest {
 
 	@MockBean
@@ -75,17 +76,6 @@ class AuthControllerTest {
 	
 	private Authentication authentication() {
 		return SecurityContextHolder.getContext().getAuthentication();
-	}
-	
-	@TestConfiguration
-	static class TestConfig {
-		
-		@Bean
-		@Primary
-		public BCryptPasswordEncoder passwordEncoder() {
-		    return new BCryptPasswordEncoder(4);
-		}
-		
 	}
 	
 	@Test

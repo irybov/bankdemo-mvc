@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,7 +41,7 @@ import com.github.irybov.bankdemossr.service.AccountServiceJPA;
 @Disabled
 @WebMvcTest(controllers = MegaController.class)
 @WithMockUser(username = "0000000000", roles = "ADMIN")
-//@Import(value = {AccountServiceJPA.class, AccountServiceDAO.class})
+@Import(BCryptConfig.class)
 class MegaControllerTest {
 
 	@MockBean
@@ -56,17 +57,6 @@ class MegaControllerTest {
 	UserDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
-	
-	@TestConfiguration
-	static class TestConfig {
-		
-		@Bean
-		@Primary
-		public BCryptPasswordEncoder passwordEncoder() {
-		    return new BCryptPasswordEncoder(4);
-		}
-		
-	}
 	
 	@Test
 	void can_change_implementation() throws Exception {

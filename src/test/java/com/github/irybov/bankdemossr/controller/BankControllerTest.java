@@ -56,6 +56,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 //import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
@@ -87,6 +89,7 @@ import com.github.irybov.bankdemossr.service.OperationService;
 
 @WithMockUser(username = "4444444444", roles = "CLIENT")
 @WebMvcTest(controllers = BankController.class)
+@Import(BCryptConfig.class)
 class BankControllerTest {
 
 	@MockBean
@@ -127,21 +130,10 @@ class BankControllerTest {
 	@Value("${external.payment-service}")
 	private String externalURL;
 	
-	@TestConfiguration
-	static class TestConfig {
-		
-		@Bean
-		@Primary
-		public BCryptPasswordEncoder passwordEncoder() {
-		    return new BCryptPasswordEncoder(4);
-		}
-		
-	}
-	
 	@BeforeAll
 	static void prepare() {
-		
-/*		currencies = new HashSet<>();
+/*		
+		currencies = new HashSet<>();
 		Currency usd = Currency.getInstance("USD");
 		currencies.add(usd);
 		Currency eur = Currency.getInstance("EUR");
@@ -149,8 +141,8 @@ class BankControllerTest {
 		Currency gbp = Currency.getInstance("GBP");
 		currencies.add(gbp);
 		Currency rub = Currency.getInstance("RUB");
-		currencies.add(rub);*/
-		
+		currencies.add(rub);
+*/		
 		entity = new Account
 				("Nia", "Nacci", "4444444444", LocalDate.of(1998, 12, 10), "blackmamba", true);
 		entity.setCreatedAt(OffsetDateTime.now());

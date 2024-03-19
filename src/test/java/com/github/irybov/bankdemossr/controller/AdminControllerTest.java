@@ -54,6 +54,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,6 +66,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -86,6 +88,7 @@ import com.opencsv.CSVWriter;
 
 @WithMockUser(username = "0000000000", roles = "ADMIN")
 @WebMvcTest(controllers = AdminController.class)
+@Import(BCryptConfig.class)
 class AdminControllerTest {
 
 	@MockBean
@@ -115,14 +118,8 @@ class AdminControllerTest {
 	private ModelMapper modelMapper;
 	
 	@TestConfiguration
-	static class TestConfig {
-		
-		@Bean
-		@Primary
-		public BCryptPasswordEncoder passwordEncoder() {
-		    return new BCryptPasswordEncoder(4);
-		}
-		
+	static class ExecutorConfig {
+	
 		@Bean
 	    @Primary
 	    public Executor asyncExecutor() {
