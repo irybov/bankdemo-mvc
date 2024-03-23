@@ -9,7 +9,7 @@ import com.github.irybov.bankdemossr.entity.Operation;
 import com.github.irybov.bankdemossr.entity.Operation_;
 
 @Component
-public class OperationSpecifications {
+public class OperationSpecification {
 	
 	public static Specification<Operation> hasAction(String action){
 			

@@ -26,7 +26,7 @@ import com.github.irybov.bankdemossr.controller.dto.OperationResponse;
 import com.github.irybov.bankdemossr.entity.Operation;
 import com.github.irybov.bankdemossr.jpa.OperationJPA;
 import com.github.irybov.bankdemossr.page.OperationPage;
-import com.github.irybov.bankdemossr.util.OperationSpecifications;
+import com.github.irybov.bankdemossr.util.OperationSpecification;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql("/test-operations-h2.sql")
@@ -61,10 +61,10 @@ class OperationJPATest {
 		
 		ModelMapper modelMapper = new ModelMapper();
 		Page<OperationResponse> resultPage = operationJPA.findAll
-				(OperationSpecifications.orderBy(OperationSpecifications.hasAction(action)
-				.and(OperationSpecifications.hasOwner(id))
-				.and(OperationSpecifications.amountBetween(minval, maxval))
-				.and(OperationSpecifications.dateBetween(mindate, maxdate))), pageable)
+				(OperationSpecification.orderBy(OperationSpecification.hasAction(action)
+				.and(OperationSpecification.hasOwner(id))
+				.and(OperationSpecification.amountBetween(minval, maxval))
+				.and(OperationSpecification.dateBetween(mindate, maxdate))), pageable)
 				.map(source -> modelMapper.map(source, OperationResponse.class));
 		
 		assertThat(resultPage.getContent().size()).isEqualTo(quantity);

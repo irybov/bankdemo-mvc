@@ -27,6 +27,7 @@ import javax.persistence.UniqueConstraint;
 
 import com.github.irybov.bankdemossr.security.Role;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.CacheStrategy;
@@ -37,7 +38,7 @@ import lombok.ToString;
 @Table(name="accounts", schema = "bankdemo",
 	uniqueConstraints={@UniqueConstraint(columnNames={"phone"})})
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "phone", cacheStrategy=CacheStrategy.LAZY)
 public class Account{
 

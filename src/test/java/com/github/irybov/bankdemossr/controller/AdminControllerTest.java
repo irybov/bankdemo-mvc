@@ -154,7 +154,7 @@ class AdminControllerTest {
     @Test
 	void can_get_admin_html() throws Exception {
 
-		AccountResponse account = modelMapper.map(new Account(), AccountResponse.class);		
+		AccountResponse account = modelMapper.map(entity, AccountResponse.class);		
 		when(accountService.getAccountDTO(anyString())).thenReturn(account);
 		
 		mockMVC.perform(get("/accounts/search"))
@@ -321,8 +321,8 @@ class AdminControllerTest {
 		
 		AccountResponse account = modelMapper.map(entity, AccountResponse.class);
 		List<BillResponse> bills = new ArrayList<>();
-		Bill bill = new Bill();
-		bill.setOwner(entity);
+		Bill bill = new Bill("SEA", true, entity);
+//		bill.setOwner(entity);
 		bills.add(modelMapper.map(bill, BillResponse.class));
 		account.setBills(bills);
 //		when(accountService.getAccountDTO(phone)).thenReturn(account);

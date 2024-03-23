@@ -152,7 +152,7 @@ class BankControllerTest {
 		
 		operation = new Operation();
 		builder = mock(Operation.OperationBuilder.class, Mockito.RETURNS_SELF);
-		bill = new Bill("SEA", true, new Account());
+		bill = new Bill("SEA", true, entity);
 		
 		modelMapper = new ModelMapper();
 	}
@@ -200,7 +200,7 @@ class BankControllerTest {
 	@Test
 	void can_create_new_bill() throws Exception {
 		
-		Bill bill = new Bill("SEA", true, new Account());
+		Bill bill = new Bill("SEA", true, entity);
 		bill.setBalance(BigDecimal.valueOf(0.00));
 		bill.setCreatedAt(OffsetDateTime.now());
 		bill.setUpdatedAt(OffsetDateTime.now());
@@ -298,8 +298,8 @@ class BankControllerTest {
 	@Test
 	void check_bill_owner() throws Exception {
 		
-		Bill bill = new Bill();
-		bill.setOwner(entity);
+		Bill bill = new Bill("SEA", true, entity);
+//		bill.setOwner(entity);
 		
 		when(billService.getBillDTO(anyInt()))
 			.thenReturn(modelMapper.map(bill, BillResponse.class));
