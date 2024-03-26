@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -25,6 +26,7 @@ import org.springframework.test.context.jdbc.Sql;
 import com.github.irybov.bankdemomvc.controller.dto.OperationResponse;
 import com.github.irybov.bankdemomvc.entity.Operation;
 import com.github.irybov.bankdemomvc.jpa.OperationJPA;
+import com.github.irybov.bankdemomvc.misc.Action;
 import com.github.irybov.bankdemomvc.page.OperationPage;
 import com.github.irybov.bankdemomvc.util.OperationSpecification;
 
@@ -74,6 +76,22 @@ class OperationJPATest {
 				OffsetDateTime.now().minusDays(1L), OffsetDateTime.now().plusDays(1L), 1),
 				Arguments.of(2, "transfer",  200.00, 900.00,
 						OffsetDateTime.now().minusDays(1L), OffsetDateTime.now().plusDays(1L), 2));
+	}
+	
+	@Test
+	void test_saveAndFlush() {
+		
+		Operation.OperationBuilder builder = Operation.builder();
+		Operation operation = builder
+			.amount(0.00)
+			.action(Action.EXTERNAL.name().toLowerCase())
+			.currency("SEA")
+			.createdAt(OffsetDateTime.now())
+			.bank("Demo")
+			.build();
+		
+		Operation entity = operationJPA.saveAndFlush(operation);
+		assertThat(entity.getId() == 1);
 	}
 	
 }

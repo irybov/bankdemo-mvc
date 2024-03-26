@@ -55,7 +55,7 @@ class BillJPATest {
 		assertThat(updated.get().getBalance()).isEqualTo(BigDecimal.valueOf(9.99));
 		assertThat(updated.get()).isEqualTo(fromDB.get());
 		billJPA.deleteById(id);
-		List<Bill> bills = (List<Bill>) billJPA.findAll();
+		List<Bill> bills = billJPA.findAll();
 		assertThat(bills.size()).isEqualTo(0);
 		
 		bills = billJPA.findByOwnerId(4);

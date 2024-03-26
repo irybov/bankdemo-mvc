@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -27,6 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.github.irybov.bankdemomvc.dao.OperationDAO;
 import com.github.irybov.bankdemomvc.entity.Operation;
+import com.github.irybov.bankdemomvc.misc.Action;
 import com.github.irybov.bankdemomvc.page.OperationPage;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -77,6 +79,22 @@ class OperationDAOTest {
 				OffsetDateTime.now().minusDays(1L), OffsetDateTime.now().plusDays(1L), 1),
 				Arguments.of(2, "transfer",  200.00, 900.00,
 						OffsetDateTime.now().minusDays(1L), OffsetDateTime.now().plusDays(1L), 2));
+	}
+	
+	@Test
+	void test_persist() {
+		
+		Operation.OperationBuilder builder = Operation.builder();
+		Operation operation = builder
+			.amount(0.00)
+			.action(Action.EXTERNAL.name().toLowerCase())
+			.currency("SEA")
+			.createdAt(OffsetDateTime.now())
+			.bank("Demo")
+			.build();
+		
+		entityManager.persist(operation);
+		assertThat(operation.getId() == 1);
 	}
 	
 }

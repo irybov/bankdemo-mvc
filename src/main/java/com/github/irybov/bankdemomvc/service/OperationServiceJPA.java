@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 //import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.irybov.bankdemomvc.controller.dto.OperationResponse;
@@ -60,5 +61,8 @@ public class OperationServiceJPA implements OperationService {
 				.and(OperationSpecification.dateBetween(mindate, maxdate))), pageable)
 					.map(source -> modelMapper.map(source, OperationResponse.class));
 	}
+	
+	@Transactional(readOnly = false, propagation = Propagation.MANDATORY, rollbackFor = Exception.class)
+	public void save(Operation operation) {operationJPA.saveAndFlush(operation);}
 	
 }

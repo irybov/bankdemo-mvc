@@ -135,6 +135,13 @@ class OperationServiceJPATest {
 		verify(operationJPA).findAll(any(Specification.class), any(Pageable.class));
 	}
 	
+	@Test
+	void can_save_operation() {		
+		when(operationJPA.saveAndFlush(any(Operation.class))).thenReturn(new Operation());
+		operationService.save(new Operation());
+		verify(operationJPA).saveAndFlush(any(Operation.class));
+	}
+	
     @AfterEach
     void tear_down() throws Exception {
     	autoClosable.close();

@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -135,6 +136,13 @@ class OperationServiceDAOTest {
 		assertThat(dtos.getContent().size()).isEqualTo(size);
 		verify(operationDAO).getPage(anyInt(), anyString(), anyDouble(),  anyDouble(),
 				any(OffsetDateTime.class), any(OffsetDateTime.class), any(Pageable.class));
+	}
+	
+	@Test
+	void can_save_operation() {		
+		doNothing().when(operationDAO).save(any(Operation.class));
+		operationService.save(new Operation());
+		verify(operationDAO).save(any(Operation.class));
 	}
 	
     @AfterEach

@@ -50,4 +50,5 @@ public interface OperationService {
 //	public Page<OperationResponseDTO> getPage(int id, OperationPage page);
 	public Page<OperationResponse> getPage(int id, String action, double minval, double maxval,
 			OffsetDateTime mindate, OffsetDateTime maxdate, Pageable pageable);
+	public void save(Operation operation);
 }

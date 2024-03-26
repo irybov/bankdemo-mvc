@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 //import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -29,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.github.irybov.bankdemomvc.controller.dto.BillResponse;
@@ -39,6 +41,7 @@ import com.github.irybov.bankdemomvc.exception.PaymentException;
 import com.github.irybov.bankdemomvc.jpa.BillJPA;
 import com.github.irybov.bankdemomvc.jpa.OperationJPA;
 import com.github.irybov.bankdemomvc.service.BillServiceJPA;
+import com.github.irybov.bankdemomvc.util.OperationEvent;
 
 //@ExtendWith(MockitoExtension.class)
 class BillServiceJPATest {
@@ -47,8 +50,10 @@ class BillServiceJPATest {
 //	BillServiceJPA billServiceJPA;
 	@Mock
 	private BillJPA billJPA;
+//	@Spy
+//	private OperationJPA operationJPA;
 	@Spy
-	private OperationJPA operationJPA;
+	private ApplicationEventPublisher publisher;
 	@InjectMocks
 	private BillServiceJPA billService;
 	
@@ -74,7 +79,8 @@ class BillServiceJPATest {
 		billService = new BillServiceJPA();
 		ReflectionTestUtils.setField(billService, "billJPA", billJPA);
 //		ReflectionTestUtils.setField(billService, "billService", billServiceJPA);
-		ReflectionTestUtils.setField(billService, "operationJPA", operationJPA);
+//		ReflectionTestUtils.setField(billService, "operationJPA", operationJPA);
+		ReflectionTestUtils.setField(billService, "publisher", publisher);
 	}
 	
 	@Test
@@ -176,7 +182,8 @@ class BillServiceJPATest {
 		assertEquals(bill.getBalance().setScale(2, RoundingMode.DOWN).doubleValue(), amount, 0.01);
 		verify(billJPA).findById(anyInt());
 		
-		verify(operationJPA).saveAndFlush(operation);
+//		verify(operationJPA).saveAndFlush(operation);
+		verify(publisher).publishEvent(any(OperationEvent.class));
 	}
 	
 	@Test
@@ -220,7 +227,8 @@ class BillServiceJPATest {
 		assertThat(bill.getBalance().setScale(2, RoundingMode.FLOOR).doubleValue()).isEqualTo(0.5);
 		verify(billJPA).findById(anyInt());
 		
-		verify(operationJPA).saveAndFlush(operation);
+//		verify(operationJPA).saveAndFlush(operation);
+		verify(publisher).publishEvent(any(OperationEvent.class));
 	}
 
 	@Test
@@ -267,7 +275,8 @@ class BillServiceJPATest {
 		}
 		verify(billJPA, times(2)).findById(anyInt());
 		
-		verify(operationJPA).saveAndFlush(operation);
+//		verify(operationJPA).saveAndFlush(operation);
+		verify(publisher).publishEvent(any(OperationEvent.class));
 	}
 	
 	@AfterEach

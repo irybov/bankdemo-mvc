@@ -8,6 +8,7 @@ import javax.persistence.EntityNotFoundException;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import com.github.irybov.bankdemomvc.dao.OperationDAO;
 import com.github.irybov.bankdemomvc.entity.Bill;
 import com.github.irybov.bankdemomvc.entity.Operation;
 import com.github.irybov.bankdemomvc.exception.PaymentException;
+import com.github.irybov.bankdemomvc.util.OperationEvent;
 
 @Service
 @Transactional
@@ -29,8 +31,10 @@ public class BillServiceDAO implements BillService {
 //	BillServiceDAO billService;
 	@Autowired
 	private BillDAO billDAO;
-	@Autowired
-	private OperationDAO operationDAO;
+//	@Autowired
+//	private OperationDAO operationDAO;
+    @Autowired
+    private ApplicationEventPublisher publisher;
 	
 	@Transactional(propagation = Propagation.MANDATORY)
 	public void saveBill(Bill bill) {
@@ -66,7 +70,8 @@ public class BillServiceDAO implements BillService {
 		Bill bill = getBill(id);
 		bill.setBalance(bill.getBalance().add(BigDecimal.valueOf(amount)));
 		updateBill(bill);
-		operationDAO.save(operation);
+//		operationDAO.save(operation);
+		publisher.publishEvent(new OperationEvent(this, operation));
 	}
 	
 	public void withdraw(Operation operation) throws PaymentException {
@@ -83,7 +88,8 @@ public class BillServiceDAO implements BillService {
 		}
 		bill.setBalance(bill.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(bill);
-		operationDAO.save(operation);
+//		operationDAO.save(operation);
+		publisher.publishEvent(new OperationEvent(this, operation));
 	}
 	
 	public void transfer(Operation operation) throws PaymentException {
@@ -113,7 +119,8 @@ public class BillServiceDAO implements BillService {
 		sender.setBalance(sender.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(target);
 		updateBill(sender);
-		operationDAO.save(operation);
+//		operationDAO.save(operation);
+		publisher.publishEvent(new OperationEvent(this, operation));
 	}
 	
 	public void external(Operation operation) throws PaymentException {
@@ -131,7 +138,8 @@ public class BillServiceDAO implements BillService {
 		}
 		target.setBalance(target.getBalance().add(BigDecimal.valueOf(amount)));
 		updateBill(target);
-		operationDAO.save(operation);
+//		operationDAO.save(operation);
+		publisher.publishEvent(new OperationEvent(this, operation));
 	}
 	
 	public void outward(Operation operation) throws PaymentException {
@@ -149,7 +157,8 @@ public class BillServiceDAO implements BillService {
 		}
 		sender.setBalance(sender.getBalance().subtract(BigDecimal.valueOf(amount)));
 		updateBill(sender);
-		operationDAO.save(operation);
+//		operationDAO.save(operation);
+		publisher.publishEvent(new OperationEvent(this, operation));
 	}
 	
 	public boolean changeStatus(int id) {
