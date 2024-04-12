@@ -3,9 +3,11 @@ package com.github.irybov.bankdemomvc.controller;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -13,6 +15,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -38,6 +41,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,6 +54,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 
+import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.config.SecurityConfig;
 import com.github.irybov.bankdemomvc.controller.AuthController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountRequest;
@@ -57,10 +63,11 @@ import com.github.irybov.bankdemomvc.entity.Account;
 import com.github.irybov.bankdemomvc.exception.RegistrationException;
 import com.github.irybov.bankdemomvc.security.AccountDetails;
 import com.github.irybov.bankdemomvc.security.AccountDetailsService;
+import com.github.irybov.bankdemomvc.security.Role;
 import com.github.irybov.bankdemomvc.service.AccountService;
 
 @WebMvcTest(AuthController.class)
-@Import(BCryptConfig.class)
+@Import(SecurityBeans.class)
 class AuthControllerTest {
 
 	@MockBean
@@ -162,16 +169,38 @@ class AuthControllerTest {
 	}
 	
 	@Test
-	void wrong_user_creds() throws Exception {
+	void wrong_user_password() throws Exception {
+		
+		Account account = new Account("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01),
+				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
 		
 		when(accountDetailsService.loadUserByUsername(anyString()))
-			.thenThrow(new UsernameNotFoundException("User 9999999999 not found"));
+//			.thenThrow(new UsernameNotFoundException("User 9999999999 not found"));
+			.thenReturn(new AccountDetails(account));
 		
-		mockMVC.perform(formLogin("/auth").user("phone", "9999999999").password("localadmin"))
+		for(int i = 1; i < 4; i++) {
+		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("localadmin"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("/login?error=true"));
+			.andExpect(redirectedUrl("/login?error=true"))
+			.andExpect(result -> assertThat
+//				(result.getResolvedException() instanceof UsernameNotFoundException))
+				(result.getResolvedException() instanceof BadCredentialsException))
+//			.andExpect(result -> assertEquals
+//				("User 9999999999 not found", result.getResolvedException().getMessage()))
+//				("Bad Credentials", result.getResolvedException().getMessage()))
+			.andDo(print());
+		}
 		
-	    verify(accountDetailsService).loadUserByUsername(anyString());
+		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("localadmin"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/login?error=true"))
+			.andExpect(result -> assertThat
+				(result.getResolvedException() instanceof DisabledException))
+//			.andExpect(result -> assertEquals
+//				("User is disabled", result.getResolvedException().getMessage()));
+			.andDo(print());
+		
+	    verify(accountDetailsService, times(4)).loadUserByUsername(anyString());
 	}
 	
 	@WithMockUser(username = "9999999999")

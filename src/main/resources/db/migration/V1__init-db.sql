@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS bankdemo.bills(
 	is_active BOOLEAN NOT NULL,
 	balance NUMERIC(19,2) NOT NULL,
 	currency VARCHAR(3) NOT NULL CONSTRAINT currencychk CHECK (CHAR_LENGTH(currency) = 3),
-	account_id INTEGER REFERENCES bankdemo.accounts(id)
+	account_id INTEGER REFERENCES bankdemo.accounts(id) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS bankdemo.operations(
 	id BIGSERIAL PRIMARY KEY,

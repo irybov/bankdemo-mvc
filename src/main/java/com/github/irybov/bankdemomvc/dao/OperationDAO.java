@@ -33,7 +33,7 @@ public class OperationDAO {
 		return entityManager.find(Operation.class, id);
 	}
 	
-	public List<Operation> getAll(int id){
+	public List<Operation> getAll(int id) {
 		return entityManager.createQuery
 				("SELECT o FROM Operation o WHERE o.sender=:id OR o.recipient=:id ORDER BY id DESC",
 				Operation.class)
@@ -60,7 +60,7 @@ public class OperationDAO {
 	}*/
 	
 	public Page<Operation> getPage(int id, String action, double minval, double maxval, 
-			OffsetDateTime mindate, OffsetDateTime maxdate, Pageable pageable){
+			OffsetDateTime mindate, OffsetDateTime maxdate, Pageable pageable) {
 		
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Operation> result = builder.createQuery(Operation.class);

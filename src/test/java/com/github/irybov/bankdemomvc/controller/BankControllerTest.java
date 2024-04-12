@@ -73,6 +73,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.controller.BankController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
 import com.github.irybov.bankdemomvc.controller.dto.BillResponse;
@@ -89,7 +90,7 @@ import com.github.irybov.bankdemomvc.service.OperationService;
 
 @WithMockUser(username = "4444444444", roles = "CLIENT")
 @WebMvcTest(controllers = BankController.class)
-@Import(BCryptConfig.class)
+@Import(SecurityBeans.class)
 class BankControllerTest {
 
 	@MockBean

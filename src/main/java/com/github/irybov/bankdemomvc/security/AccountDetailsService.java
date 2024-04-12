@@ -36,9 +36,8 @@ public class AccountDetailsService implements UserDetailsService {
 		this.impl = impl;
 	}*/
 	@Autowired
-	public void setImpl(@Value("${bean.service-impl}") String impl) {
-		this.impl = impl;
-	}
+	public void setImpl(@Value("${bean.service-impl}") String impl) {this.impl = impl;}
+	public String getImpl() {return this.impl;}
 		
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	@Override
@@ -50,7 +49,7 @@ public class AccountDetailsService implements UserDetailsService {
 //		if(accountService instanceof AccountServiceJPA) {
 			Optional<Account> optional = jpa.findByPhone(phone);
 			account = optional.orElseThrow(() -> 
-					new UsernameNotFoundException("User " + phone + " not found"));			
+					new UsernameNotFoundException("User " + phone + " not found"));
 		}
 		else if(impl.equals("DAO")) {
 //		else if(accountService instanceof AccountServiceDAO) {

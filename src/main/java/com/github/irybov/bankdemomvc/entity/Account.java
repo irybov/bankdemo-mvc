@@ -115,12 +115,8 @@ public class Account{
 	}
 	
 	@PrePersist
-	protected void onCreate() {
-		createdAt = OffsetDateTime.now();
-	}
+	protected void onCreate() {createdAt = OffsetDateTime.now();}
 	@PreUpdate
-	protected void onUpdate() {
-		updatedAt = OffsetDateTime.now();
-	}
+	protected void onUpdate() {updatedAt = OffsetDateTime.now();}
 
 }

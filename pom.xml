@@ -11,7 +11,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 	</parent>
 	<groupId>com.github.irybov</groupId>
 	<artifactId>bankdemo-mvc</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-FINAL</version>
 	<name>Bank demo</name>
 	<description>Demo project for Spring Boot monolith</description>
 	<contributors>

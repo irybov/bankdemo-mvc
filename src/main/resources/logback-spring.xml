@@ -2,6 +2,7 @@
 <configuration scan="true">
 	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <property name="HOME_LOG" value="./logs"/>
+<!--     <timestamp key="timestamp" datePattern="yyyyMMdd"/> -->
     
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

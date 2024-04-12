@@ -1,6 +1,5 @@
 package com.github.irybov.bankdemomvc.controller;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -30,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.controller.MegaController;
 import com.github.irybov.bankdemomvc.dao.AccountDAO;
 import com.github.irybov.bankdemomvc.jpa.AccountJPA;
@@ -41,7 +41,7 @@ import com.github.irybov.bankdemomvc.service.AccountServiceJPA;
 @Disabled
 @WebMvcTest(controllers = MegaController.class)
 @WithMockUser(username = "0000000000", roles = "ADMIN")
-@Import(BCryptConfig.class)
+@Import(SecurityBeans.class)
 class MegaControllerTest {
 
 	@MockBean
@@ -51,10 +51,8 @@ class MegaControllerTest {
 	private AccountServiceJPA accountServiceJPA;
 	@MockBean
 	private AccountServiceDAO accountServiceDAO;
-	@MockBean
+	@Autowired
 	ApplicationContext context;
-	@MockBean
-	UserDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	
@@ -63,7 +61,7 @@ class MegaControllerTest {
 
 		String impl = "DAO";
 //		String bean = accountService.getClass().getSimpleName();
-		when(context.getBean("accountServiceDAO")).thenReturn(accountServiceDAO);
+		when(context.getBean("accountServiceAlias")).thenReturn(accountServiceDAO);
 		mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 				.andExpect(status().isOk())
 				.andExpect(content()
@@ -72,7 +70,7 @@ class MegaControllerTest {
 		
 		impl = "JPA";
 //		bean = accountService.getClass().getSimpleName();
-		when(context.getBean("accountServiceJPA")).thenReturn(accountServiceJPA);
+		when(context.getBean("accountServiceAlias")).thenReturn(accountServiceJPA);
 		mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
 				.andExpect(status().isOk())
 				.andExpect(content()

@@ -14,4 +14,5 @@ public interface BillJPA extends JpaRepository<Bill, Integer> {
 //	List<Bill> getAll(int id);
 	
 	List<Bill> findByOwnerId(int id);
+	
 }

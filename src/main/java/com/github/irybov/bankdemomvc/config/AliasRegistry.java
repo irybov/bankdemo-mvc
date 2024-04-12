@@ -6,10 +6,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 //import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-//import org.springframework.stereotype.Component;
 import org.springframework.core.PriorityOrdered;
 
-//@Component
 //@Configuration
 public class AliasRegistry implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
 	

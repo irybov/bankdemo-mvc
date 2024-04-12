@@ -182,10 +182,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //		http.headers().frameOptions().disable();
 	}
 	
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring().antMatchers("/**/swagger*/**", "/**/api-docs/**");
-//    }
+    @Override
+    public void configure(WebSecurity web) throws Exception {web.ignoring().antMatchers("/error");}
     
     @Configuration
     @Order(Ordered.HIGHEST_PRECEDENCE)

@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,6 @@ class AccountDAOTest {
 		oldPN = new String("0000000000");
 		newPN = new String("9999999999");
 	}
-	
 	@BeforeEach
 	void set_up() {
 		entityManager.createNativeQuery("DELETE FROM {h-schema}bills").executeUpdate();
@@ -134,13 +134,36 @@ class AccountDAOTest {
 		assertThatExceptionOfType(PersistenceException.class)
 				.isThrownBy(() -> {accountDAO.saveAccount(fakeAdmin);});
     }
+    
+    @Test
+    void search_disabled_accounts() {
+    	Account blackEntity = new Account
+				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", false);
+		Account vixenEntity = new Account
+		(		"Kae", "Yukawa", "1111111111", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
+		Account blondeEntity = new Account
+				("Hannah", "Waddingham", "2222222222", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
+		Account gingerEntity = new Account
+				("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
+    	List<Account> accounts = new ArrayList<>();
+    	Collections.addAll(accounts, blackEntity, vixenEntity, blondeEntity, gingerEntity);
+    	accounts.forEach(accountDAO::saveAccount);
+    	
+    	accounts = accountDAO.getByTime(false, OffsetDateTime.now().minusMinutes(1L));
+    	assertThat(accounts.size() == 4);
+    	
+    	accountDAO.batchUpdate(accounts);
+    	
+    	accounts = accountDAO.getByTime(false, OffsetDateTime.now().minusMinutes(1L));
+    	assertThat(accounts).isNotNull();
+    	assertThat(accounts.isEmpty()).isTrue();
+    }	
 	
     @AfterEach
     void tear_down() {
     	accountDAO.deleteAccount(account);
     	account = null;
     }
-    
     @AfterAll
     void clear() {
     	oldPN = null;

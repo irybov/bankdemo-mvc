@@ -38,8 +38,7 @@ import com.github.irybov.bankdemomvc.page.OperationPage;
 class OperationDAOTest {
 	
 	@PersistenceContext
-	private EntityManager entityManager;
-	
+	private EntityManager entityManager;	
 	@InjectMocks
 	private OperationDAO operationDAO;
 	

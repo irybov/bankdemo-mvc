@@ -12,8 +12,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.github.irybov.bankdemomvc.entity.Account;
 import com.github.irybov.bankdemomvc.entity.Bill;
@@ -23,7 +26,12 @@ import com.github.irybov.bankdemomvc.jpa.BillJPA;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataJpaTest
+//@EnableJpaRepositories(basePackageClasses = {BillJPA.class, AccountJPA.class})
+//@EntityScan(basePackageClasses = {Bill.class, Account.class})
 class BillJPATest {
+	
+    @Autowired
+    private TransactionTemplate template;
 
 	@Autowired
 	private AccountJPA accountJPA;
@@ -35,12 +43,16 @@ class BillJPATest {
 	
 	@BeforeAll
 	void prepare() {
-    	billJPA.deleteAll();
+		
 		account = new Account
 				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", true);
-		accountJPA.save(account);
 		bill = new Bill("SEA", true, account);
-		billJPA.save(bill);
+		
+		template.executeWithoutResult(status ->  {
+			billJPA.deleteAll();
+			billJPA.save(bill);
+			accountJPA.save(account);
+		});
 	}
 
 	@Test
@@ -65,6 +77,7 @@ class BillJPATest {
     @AfterAll
     void clear() {
     	bill = null;
+    	template.executeWithoutResult(status ->  {accountJPA.deleteById(account.getId());});
     	account = null;
     }
 	

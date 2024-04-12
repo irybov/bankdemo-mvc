@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,9 +20,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 //import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.github.irybov.bankdemomvc.entity.Account;
 import com.github.irybov.bankdemomvc.jpa.AccountJPA;
@@ -31,7 +35,12 @@ import com.github.irybov.bankdemomvc.security.Role;
 //@TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataJpaTest
+//@EnableJpaRepositories(basePackageClasses = AccountJPA.class)
+//@EntityScan(basePackageClasses = Account.class)
 class AccountJPATest {
+	
+    @Autowired
+    private TransactionTemplate template;
 
 	@Autowired
 	private AccountJPA accountJPA;
@@ -42,13 +51,15 @@ class AccountJPATest {
 	
 	@BeforeAll
 	void prepare() {
-		accountJPA.deleteAll();
+		
 		oldPN = new String("0000000000");
 		newPN = new String("9999999999");
 		account = new Account
 				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
 		account.addRole(Role.ADMIN);
-		accountJPA.saveAndFlush(account);
+		
+		template.executeWithoutResult(status ->  {accountJPA.deleteAll();});		
+		account = template.execute(status ->  {return accountJPA.saveAndFlush(account);});
 	}
 	
 	@Test
@@ -117,6 +128,31 @@ class AccountJPATest {
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(DataIntegrityViolationException.class)
 				.isThrownBy(() -> {accountJPA.saveAndFlush(fakeAdmin);});
+    }
+    
+    @Test
+    void search_disabled_accounts() {
+    	Account blackEntity = new Account
+				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", false);
+		Account vixenEntity = new Account
+		(		"Kae", "Yukawa", "1111111111", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
+		Account blondeEntity = new Account
+				("Hannah", "Waddingham", "2222222222", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
+		Account gingerEntity = new Account
+				("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
+    	List<Account> accounts = new ArrayList<>();
+    	Collections.addAll(accounts, blackEntity, vixenEntity, blondeEntity, gingerEntity);
+    	accountJPA.saveAll(accounts);
+    	
+    	accounts = accountJPA.findByIsActiveAndUpdatedAtIsBefore(false, OffsetDateTime.now().minusMinutes(1L));
+    	assertThat(accounts.size() == 4);
+    	
+    	accounts.forEach(account -> account.setActive(true));
+    	accountJPA.saveAll(accounts);
+    	
+    	accounts = accountJPA.findByIsActiveAndUpdatedAtIsBefore(false, OffsetDateTime.now().minusMinutes(1L));
+    	assertThat(accounts).isNotNull();
+    	assertThat(accounts.isEmpty()).isTrue();
     }
 	
     @AfterAll

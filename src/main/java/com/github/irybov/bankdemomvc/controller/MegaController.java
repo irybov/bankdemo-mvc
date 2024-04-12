@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.irybov.bankdemomvc.security.AccountDetailsService;
+import com.github.irybov.bankdemomvc.security.LoginListener;
+import com.github.irybov.bankdemomvc.security.UnlockService;
 import com.github.irybov.bankdemomvc.service.AccountService;
 import com.github.irybov.bankdemomvc.service.BillService;
 import com.github.irybov.bankdemomvc.service.OperationService;
@@ -24,9 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class MegaController extends BaseController {
-    
-    @Autowired
-    private AccountDetailsService details;
 	
 	@ApiOperation("Switchs model's layer type wired to defined controllers")
 	@PreAuthorize("hasRole('ADMIN')")
@@ -38,7 +37,6 @@ public class MegaController extends BaseController {
 	    
 	    if(impl.equals("JPA") || impl.equals("DAO")) {
 	    	
-	    	details.setImpl(impl);	    	
 		    registry.destroySingleton("accountServiceAlias");
 		    AccountService as = (AccountService) context.getBean("accountService" + impl);
 	    	registry.registerSingleton("accountServiceAlias", as);
@@ -48,6 +46,13 @@ public class MegaController extends BaseController {
 		    registry.destroySingleton("operationServiceAlias");
 	    	OperationService os = (OperationService) context.getBean("operationService" + impl);
 	    	registry.registerSingleton("operationServiceAlias", os);
+	    	
+	    	AccountDetailsService ad = (AccountDetailsService) context.getBean("accountDetailsService");
+	    	ad.setImpl(impl);
+	    	UnlockService us = (UnlockService) context.getBean("unlockService");
+	    	us.setImpl(impl);
+	    	LoginListener ll = (LoginListener) context.getBean("loginListener");
+	    	ll.setImpl(impl);
 	    	
 			log.info("Admin {} has switched services impementation to {}",
 					authentication().getName(), impl);
