@@ -62,7 +62,7 @@ class AccountDetailsServiceTest {
     	ReflectionTestUtils.setField(accountDetailsService, "dao", accountDAO);
 //    	ReflectionTestUtils.setField(accountDetailsService, "accountService", accountService);
 //    	ReflectionTestUtils.setField(accountDetailsService, "impl", impl);
-		adminEntity = new Account("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01),
+		adminEntity = new Account("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01),
 				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
 		adminEntity.addRole(Role.ADMIN);
     }

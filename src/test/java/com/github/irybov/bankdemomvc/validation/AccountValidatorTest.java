@@ -71,6 +71,7 @@ class AccountValidatorTest {
 		accountRequestDTO.setName("Admin");
 		accountRequestDTO.setPassword("superadmin");
 		accountRequestDTO.setPhone(phone);
+		accountRequestDTO.setEmail("adminov@greenmail.io");
 		accountRequestDTO.setSurname("Adminov");
 	
 		Errors errors = new BeanPropertyBindingResult(accountRequestDTO, "accountRequestDTO");

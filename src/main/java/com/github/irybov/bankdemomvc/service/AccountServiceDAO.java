@@ -59,7 +59,7 @@ public class AccountServiceDAO implements AccountService {
 			accountDAO.saveAccount(account);
 		}
 		catch (RuntimeException exc) {
-			throw new PersistenceException("This number is already in use.");
+			throw new PersistenceException("This number is already in use");
 		}
 	}
 	

@@ -58,15 +58,14 @@ class LoginListenerTest {
 	}
 */	
 	@Test
-	void test() {
+	void test() {		
+		doNothing().when(listener).listen(any(AbstractAuthenticationEvent.class));
+		
 		publisher.publishEvent(new AuthenticationFailureBadCredentialsEvent
 				(new UsernamePasswordAuthenticationToken(new Object(), new Object()), 
-						new BadCredentialsException(new String())));		
-		doNothing().when(listener).listen(any(AbstractAuthenticationEvent.class));		
+						new BadCredentialsException(new String())));
 		publisher.publishEvent(new AuthenticationSuccessEvent
 				(new UsernamePasswordAuthenticationToken(new Object(), new Object())));
-		
-		doNothing().when(listener).listen(any(AbstractAuthenticationEvent.class));
 		
 		verify(listener, times(2)).listen(any(AbstractAuthenticationEvent.class));
 	}

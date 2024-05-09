@@ -78,7 +78,7 @@ class AccountServiceDAOTest {
 	@BeforeAll
 	static void prepare() {
 		phone = new String("0000000000");
-		adminEntity = new Account("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01),
+		adminEntity = new Account("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01),
 										 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
 	}
 	
@@ -164,17 +164,17 @@ class AccountServiceDAOTest {
     void can_get_accounts_list() {
     	
 		Account vixenEntity = new Account
-		("Marica", "Hase", "1111111111", LocalDate.of(1981, Month.SEPTEMBER, 26), "supervixen", true);
+		("Kae", "Yukawa", "1111111111", "yukawa@greenmail.io", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", true);
 		vixenEntity.addRole(Role.CLIENT);
 		vixenEntity.setId(3);
 		vixenEntity.setBills(new ArrayList<Bill>());
 		Account blondeEntity = new Account
-		("Sarah", "Vandella", "2222222222", LocalDate.of(1983, Month.DECEMBER, 02), "bustyblonde", true);
+		("Hannah", "Waddingham", "2222222222", "waddingham@greenmail.io", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", true);
 		blondeEntity.addRole(Role.CLIENT);
 		blondeEntity.setId(2);
 		blondeEntity.setBills(new ArrayList<Bill>());
 		Account gingerEntity = new Account
-		("Lily", "Cade", "3333333333", LocalDate.of(1995, Month.JANUARY, 25), "gingerchick", true);
+		("Ella", "Hughes", "3333333333", "hughes@greenmail.io", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", true);
 		gingerEntity.addRole(Role.CLIENT);
 		gingerEntity.addRole(Role.ADMIN);
 		gingerEntity.setId(1);

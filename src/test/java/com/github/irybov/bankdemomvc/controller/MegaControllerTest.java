@@ -39,7 +39,7 @@ import com.github.irybov.bankdemomvc.service.AccountServiceDAO;
 import com.github.irybov.bankdemomvc.service.AccountServiceJPA;
 
 @Disabled
-@WebMvcTest(controllers = MegaController.class)
+@WebMvcTest(MegaController.class)
 @WithMockUser(username = "0000000000", roles = "ADMIN")
 @Import(SecurityBeans.class)
 class MegaControllerTest {

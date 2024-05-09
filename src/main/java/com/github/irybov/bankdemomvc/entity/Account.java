@@ -69,6 +69,9 @@ public class Account{
 	@Column(unique=true, nullable = false, length=10)
 	private String phone;
 	
+	@Column(unique=true, nullable = false, length=60)
+	private String email;
+	
 	@Column(columnDefinition = "date")
 	private LocalDate birthday;
 	
@@ -89,11 +92,12 @@ public class Account{
 	@Column(name = "role")
 	private Set<Role> roles;
 	
-	public Account(String name, String surname, String phone, LocalDate birthday, String password,
+	public Account(String name, String surname, String phone, String email, LocalDate birthday, String password,
 			boolean isActive) {
 		this.name = name;
 		this.surname = surname;
 		this.phone = phone;
+		this.email = email;
 		this.birthday = birthday;
 		this.password = password;
 		this.isActive = isActive;

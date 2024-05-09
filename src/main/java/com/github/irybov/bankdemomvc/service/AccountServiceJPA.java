@@ -59,7 +59,7 @@ public class AccountServiceJPA implements AccountService {
 			accountJPA.saveAndFlush(account);
 		}
 		catch (RuntimeException exc) {
-			throw new DataIntegrityViolationException("This number is already in use.");
+			throw new DataIntegrityViolationException("This number is already in use");
 		}
 	}
 	

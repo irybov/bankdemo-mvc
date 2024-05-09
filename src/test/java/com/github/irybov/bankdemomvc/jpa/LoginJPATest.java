@@ -43,7 +43,7 @@ class LoginJPATest {
 	void prepare() {
 		
 		account = new Account
-				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", true);
+				("Kylie", "Bunbury", "4444444444", "bunbury@greenmail.io", LocalDate.of(1989, 01, 30), "blackmamba", true);
 		account = template.execute(status ->  {return accountJPA.save(account);});	
 		
 		logins = new ArrayList<>();

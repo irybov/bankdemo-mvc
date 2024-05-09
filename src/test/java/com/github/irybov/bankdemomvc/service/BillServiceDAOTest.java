@@ -65,7 +65,7 @@ class BillServiceDAOTest {
 	
 	@BeforeAll
 	static void prepare() {
-		owner = new Account("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01),
+		owner = new Account("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01),
 				"superadmin", true);
 		bill = new Bill("SEA", true, owner);
 		

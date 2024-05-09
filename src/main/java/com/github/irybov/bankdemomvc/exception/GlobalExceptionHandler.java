@@ -1,4 +1,4 @@
-package com.github.irybov.bankdemomvc.validation;
+package com.github.irybov.bankdemomvc.exception;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,26 +19,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.github.irybov.bankdemomvc.controller.AuthController;
 import com.github.irybov.bankdemomvc.controller.BankController;
-import com.github.irybov.bankdemomvc.exception.PaymentException;
+import com.github.irybov.bankdemomvc.validation.ValidationErrorResponse;
+import com.github.irybov.bankdemomvc.validation.Violation;
 
 //@ControllerAdvice(basePackages = "com.github.irybov.bankdemossr.controller")
-@ControllerAdvice(basePackageClasses = BankController.class)
-public class ConstraintViolationExceptionHandler {
+@ControllerAdvice(basePackageClasses = {BankController.class, AuthController.class})
+public class GlobalExceptionHandler {
 
-//	@ExceptionHandler(ConstraintViolationException.class)
+	@ExceptionHandler(ConstraintViolationException.class)
 //	@ResponseBody
 //	ValidationErrorResponse onConstraintValidationException(ConstraintViolationException exc) {
-	ModelAndView handleConstraintValidation(ConstraintViolationException exc) {		
+	ModelAndView handleConstraintValidation(ConstraintViolationException exc, 
+			HttpServletResponse response) {		
 				
-	    ValidationErrorResponse error = new ValidationErrorResponse();	    
-/*	    for(ConstraintViolation<?> violation : exc.getConstraintViolations()) {
+	    ValidationErrorResponse error = new ValidationErrorResponse();
+	    for(ConstraintViolation<?> violation : exc.getConstraintViolations()) {
 	    	error.getViolations().add(new Violation(violation.getMessage()));
 	    }
-	    return error;*/
+//	    return error;
+
 		ModelAndView mav = new ModelAndView("error");
 		List<Violation> violations = error.getViolations();
 		mav.addObject("violations", violations);
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return mav;
 	}
 	

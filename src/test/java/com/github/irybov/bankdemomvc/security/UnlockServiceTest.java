@@ -53,7 +53,6 @@ class UnlockServiceTest {
 	
     @BeforeAll
     void set_up() {
-    	
     	autoClosable = MockitoAnnotations.openMocks(this);
     	unlockService = new UnlockService();
 //    	template = new TransactionTemplate();
@@ -67,13 +66,13 @@ class UnlockServiceTest {
 		
 		List<Account> empty = Collections.emptyList();
     	Account black = new Account
-				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", false);
+			("Kylie", "Bunbury", "4444444444", "bunbury@greenmail.io", LocalDate.of(1989, 01, 30), "blackmamba", false);
 		Account vixen = new Account
-		(		"Kae", "Yukawa", "1111111111", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
+			("Kae", "Yukawa", "1111111111", "yukawa@greenmail.io", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
 		Account blonde = new Account
-				("Hannah", "Waddingham", "2222222222", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
+			("Hannah", "Waddingham", "2222222222", "waddingham@greenmail.io", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
 		Account ginger = new Account
-				("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
+			("Ella", "Hughes", "3333333333", "hughes@greenmail.io", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
 		List<Account> locked = Stream.of(black, vixen, blonde, ginger).collect(Collectors.toList());
 
 //		doNothing().when(template).setReadOnly(any(Boolean.class));

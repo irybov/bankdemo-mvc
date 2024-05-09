@@ -2,6 +2,7 @@ package com.github.irybov.bankdemomvc.controller.dto;
 
 import java.time.LocalDate;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
@@ -37,13 +38,18 @@ public class AccountRequest {
 
 	@JsonProperty("phone")
 	@NotBlank(message = "Phone number must not be blank")
-//	@Size(min=10, max=10, message = "Phone number should be 10 digits length")
 	@Pattern(regexp = "^\\d{10}$", message = "Please input phone number like a row of 10 digits")
 	private String phone;
+	
+	@JsonProperty("email")
+	@NotBlank(message = "Email address must not be blank")
+	@Email(message = "Email address is not valid")
+	@Size(min=10, max=60, message = "Email address should be 10-60 symbols length")
+	private String email;
 
 	@JsonProperty("birthday")
 	@NotNull(message = "Please select your date of birth")
-	@Past(message = "Birthday cant be future time")
+	@Past(message = "Birthday can't be future time")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate birthday;

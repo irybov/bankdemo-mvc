@@ -7,6 +7,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -30,10 +32,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.mail.internet.MimeMessage;
+
+import org.awaitility.Awaitility;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +48,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,13 +69,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.irybov.bankdemomvc.controller.AuthController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountRequest;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
 import com.github.irybov.bankdemomvc.controller.dto.OperationRequest;
@@ -87,6 +99,10 @@ import com.github.irybov.bankdemomvc.service.OperationServiceJPA;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetupTest;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 //@Sql("/test-data-h2.sql")
@@ -100,13 +116,12 @@ public class BankDemoBootApplicationIT {
 	private static WireMockServer wireMockServer;
 	@Value("${external.payment-service}")
 	private static String externalURL;
+	
 	@BeforeAll
 	static void prepare() {
-		wireMockServer = new WireMockServer(
-		        new WireMockConfiguration().port(4567)
-		    );
-		    wireMockServer.start();
-		    WireMock.configureFor(externalURL, 4567);
+		wireMockServer = new WireMockServer(new WireMockConfiguration().port(4567));
+	    wireMockServer.start();
+	    WireMock.configureFor(externalURL, 4567);
 	}
 	
 	private Authentication authentication() {
@@ -220,6 +235,7 @@ public class BankDemoBootApplicationIT {
 		
     }	
 
+	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 	@Nested
 	class AuthControllerIT{
 		
@@ -230,6 +246,22 @@ public class BankDemoBootApplicationIT {
 		private AccountJPA jpa;
 		@Autowired
 		private AccountDAO dao;
+		
+	    @Autowired
+	    ApplicationContext context;
+	    private Map<String, AccountRequest> accounts = new ConcurrentReferenceHashMap<>();
+	    
+		@Value("${server.address}")
+		private String uri;
+		@Value("${server.port}")
+		private int port;
+		@Value("${server.servlet.context-path}")
+		private String path;
+	    
+		@RegisterExtension
+		GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+		        .withConfiguration(GreenMailConfiguration.aConfig().withUser("irybov", "bankdemo"))
+		        .withPerMethodLifecycle(false);
 		
 		private static final String PHONE = "0000000000";				
 		private void hashPassword() {
@@ -245,6 +277,18 @@ public class BankDemoBootApplicationIT {
 				account.setPassword(BCrypt.hashpw(account.getPassword(), BCrypt.gensalt(4)));
 				dao.updateAccount(account);
 			}
+		}
+		
+		private String mailbox = "@greenmail.io";
+		private AccountRequest buildCorrectAccountRequest() {
+			AccountRequest accountRequest = new AccountRequest();
+			accountRequest.setBirthday(LocalDate.of(1989, 01, 30));
+			accountRequest.setName("Kylie");
+			accountRequest.setPassword("blackmamba");
+			accountRequest.setPhone("4444444444");
+			accountRequest.setSurname("Bunbury");
+			accountRequest.setEmail(accountRequest.getSurname().toLowerCase() + mailbox);
+			return accountRequest;
 		}
 	
 		@Test
@@ -293,6 +337,16 @@ public class BankDemoBootApplicationIT {
 		        .andExpect(model().size(1))
 		        .andExpect(model().attribute("account", any(AccountResponse.class)))
 		        .andExpect(view().name("auth/success"));
+		}
+		
+		
+		@WithMockUser(username = PHONE, roles = "ADMIN")
+		@Test
+		void forward_to_private() throws Exception {
+			
+	        mockMVC.perform(get("/login"))
+		        .andExpect(status().is2xxSuccessful())
+		        .andExpect(forwardedUrl("/accounts/show/" + PHONE));
 		}
 		
 		@Test
@@ -352,29 +406,48 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void accepted_registration() throws Exception {
 			
-			mockMVC.perform(post("/confirm").with(csrf())
-										 .param("birthday", "1998-12-10")
-										 .param("name", "Nia")
-										 .param("password", "blackmamba")
-										 .param("phone", "4444444444")
-										 .param("surname", "Nacci")
+			AccountRequest accountRequest = buildCorrectAccountRequest();			
+			mockMVC.perform(post("/confirm").with(csrf()).flashAttr("account", accountRequest)
+//										 .param("birthday", "1998-12-10")
+//										 .param("name", "Nia")
+//										 .param("password", "blackmamba")
+//										 .param("phone", "4444444444")
+//										 .param("surname", "Nacci")
 						)
-				.andExpect(status().isCreated())
-		        .andExpect(model().size(2))
-		        .andExpect(model().attribute("account", any(AccountRequest.class)))
-		        .andExpect(model().attribute("success", "Your account has been created"))
-				.andExpect(view().name("auth/login"));
+//				.andExpect(status().isCreated())
+//		        .andExpect(model().size(2))
+//		        .andExpect(model().attribute("account", any(AccountRequest.class)))
+//		        .andExpect(model().attribute("success", "Your account has been created"))
+//				.andExpect(view().name("auth/login"));
+				.andExpect(status().isOk())
+				.andExpect(view().name("auth/info"));
+			
+			Awaitility.await().untilAsserted(() -> {
+				assertEquals(true, greenMail.isRunning());
+				MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
+				assertEquals(1, receivedMessage.getAllRecipients().length);
+				assertEquals(accountRequest.getSurname().toLowerCase() + mailbox, receivedMessage.getAllRecipients()[0].toString());
+				assertEquals("noreply@bankdemo.com", receivedMessage.getFrom()[0].toString());
+				assertEquals("Confirm your registration", receivedMessage.getSubject());
+				assertFalse(GreenMailUtil.getBody(receivedMessage).isEmpty());
+				assertTrue(GreenMailUtil.getBody(receivedMessage)
+						.startsWith("<a href='http://" + uri + ":" + port + path + "/activate/"));
+				assertTrue(GreenMailUtil.getBody(receivedMessage)
+						.endsWith("'>Activate your account</a>"));
+				assertFalse(GreenMailUtil.getBody(receivedMessage).contains("Shit happens"));
+			});
 		}
 		
 		@Test
 		void rejected_registration() throws Exception {
 			
 			mockMVC.perform(post("/confirm").with(csrf())
-										 .param("birthday", LocalDate.now().minusYears(17L).toString())
+										 .param("birthday", LocalDate.now().minusYears(10L).toString())
 										 .param("name", "N")
 										 .param("password", "superb")
 										 .param("phone", "XXL")
 										 .param("surname", "N")
+										 .param("email", "invalid")
 						)
 				.andExpect(status().isBadRequest())
 				.andExpect(model().size(1))
@@ -388,23 +461,35 @@ public class BankDemoBootApplicationIT {
 										 .param("password", "superb")
 										 .param("phone", "XXL")
 										 .param("surname", "N")
+										 .param("email", "invalid")
 						)
 				.andExpect(status().isBadRequest())
 				.andExpect(model().size(1))
 				.andExpect(model().attribute("account", any(AccountRequest.class)))
 				.andExpect(model().hasErrors())
 				.andExpect(view().name("auth/register"));
-		}
-		
-		@Test
-		void interrupted_registration() throws Exception {
 			
 			mockMVC.perform(post("/confirm").with(csrf())
 										 .param("birthday", LocalDate.now().minusYears(10L).toString())
-										 .param("name", "Nia")
+										 .param("name", "Kylie")
 										 .param("password", "blackmamba")
 										 .param("phone", "4444444444")
-										 .param("surname", "Nacci")
+										 .param("surname", "Bunbury")
+										 .param("email", "bunbury@greenmail.io")
+						)
+				.andExpect(status().isBadRequest())
+				.andExpect(model().size(1))
+				.andExpect(model().attribute("account", any(AccountRequest.class)))
+				.andExpect(content().string(containsString("Validator in action!")))
+				.andExpect(view().name("auth/register"));
+			
+			mockMVC.perform(post("/confirm").with(csrf())
+										 .param("birthday", "1989-01-30")
+										 .param("name", "Kylie")
+										 .param("password", "blackmamba")
+										 .param("phone", "0000000000")
+										 .param("surname", "Bunbury")
+										 .param("email", "bunbury@greenmail.io")
 						)
 				.andExpect(status().isBadRequest())
 				.andExpect(model().size(1))
@@ -412,22 +497,81 @@ public class BankDemoBootApplicationIT {
 				.andExpect(content().string(containsString("Validator in action!")))
 				.andExpect(view().name("auth/register"));
 		}
+
+		@Test
+		void successful_activation() throws Exception {
+			
+			ReflectionTestUtils.setField(context.getBean(AuthController.class), "accounts", accounts);
+			
+			AccountRequest accountRequest = buildCorrectAccountRequest();
+			mockMVC.perform(post("/confirm").with(csrf()).flashAttr("account", accountRequest))
+				.andExpect(status().isOk())
+				.andExpect(view().name("auth/info"));
+			
+			List<String> keys = new ArrayList<>(accounts.keySet());
+			String tail = keys.get(0);
+			
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isCreated())
+		        .andExpect(model().size(1))
+	        	.andExpect(model().attribute("success", "Your account has been created"))
+				.andExpect(view().name("auth/login"));
+		}
 		
 		@Test
-		void violated_registration() throws Exception {
+		void failed_activation() throws Exception {
 			
-			mockMVC.perform(post("/confirm").with(csrf())
-										 .param("birthday", "1998-12-10")
-										 .param("name", "Nia")
-										 .param("password", "blackmamba")
-										 .param("phone", "0000000000")
-										 .param("surname", "Nacci")
-						)
+			ReflectionTestUtils.setField(context.getBean(AuthController.class), "accounts", accounts);
+			
+			AccountRequest accountRequest = buildCorrectAccountRequest();			
+			mockMVC.perform(post("/confirm").with(csrf()).flashAttr("account", accountRequest))
+				.andExpect(status().isOk())
+				.andExpect(view().name("auth/info"));
+			
+			List<String> keys = new ArrayList<>(accounts.keySet());
+			String tail = keys.get(0);
+			accountRequest = accounts.get(tail);
+			accountRequest.setPhone(PHONE);
+			
+			accounts.put(tail, accountRequest);
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isConflict())
+		        .andExpect(model().size(1))
+	        	.andExpect(model().attribute("message", "This number is already in use"))
+				.andExpect(view().name("auth/home"));
+			
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isGone())
+		        .andExpect(model().size(1))
+		    	.andExpect(model().attribute("message", "Link has been expired, try to register again"))
+				.andExpect(view().name("auth/home"));
+		}
+		
+		@Test
+		void violated_activation() throws Exception {
+			
+			String tail = "tail";		
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
 				.andExpect(status().isBadRequest())
-				.andExpect(model().size(1))
-				.andExpect(model().attribute("account", any(AccountRequest.class)))
-				.andExpect(content().string(containsString("Validator in action!")))
-				.andExpect(view().name("auth/register"));
+		        .andExpect(model().size(1))
+		    	.andExpect(model().attribute("violations", any(List.class)))
+		    	.andExpect(content().string(containsString("Path variable should be 8 chars length")))
+				.andExpect(view().name("error"));
+			
+			tail = " ";
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isBadRequest())
+		        .andExpect(model().size(1))
+		    	.andExpect(model().attribute("violations", any(List.class)))
+		    	.andExpect(content().string(containsString("Path variable must not be blank")))
+				.andExpect(view().name("error"));
+			
+			tail = "";
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isNotFound());
+			tail = null;
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+				.andExpect(status().isNotFound());
 		}
 		
 	}

@@ -60,7 +60,7 @@ class AccountDAOTest {
 		entityManager.createNativeQuery("DELETE FROM {h-schema}roles").executeUpdate();
 		entityManager.createNativeQuery("DELETE FROM {h-schema}accounts").executeUpdate();
 		account = new Account
-				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
+				("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01), "superadmin", true);
 		account.addRole(Role.ADMIN);
 		accountDAO.saveAccount(account);
 	}
@@ -106,13 +106,13 @@ class AccountDAOTest {
     	assertThat(clients.isEmpty()).isTrue();
     	
 		Account vixenEntity = new Account
-		("Kae", "Yukawa", "1111111111", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", true);
+		("Kae", "Yukawa", "1111111111", "yukawa@greenmail.io", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", true);
 		vixenEntity.addRole(Role.CLIENT);
 		Account blondeEntity = new Account
-		("Hannah", "Waddingham", "2222222222", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", true);
+		("Hannah", "Waddingham", "2222222222", "waddingham@greenmail.io", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", true);
 		blondeEntity.addRole(Role.CLIENT);
 		Account gingerEntity = new Account
-		("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", true);
+		("Ella", "Hughes", "3333333333", "hughes@greenmail.io", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", true);
 //		gingerEntity.addRole(Role.CLIENT);
 		gingerEntity.addRole(Role.ADMIN);
 		
@@ -129,7 +129,7 @@ class AccountDAOTest {
 //	@Order(6)
     void produce_persistence_exception() {
 		Account fakeAdmin = new Account
-				("Admin", "Adminov", "0000000000", LocalDate.of(2001, 01, 01), "superadmin", true);
+				("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01), "superadmin", true);
 		fakeAdmin.addRole(Role.CLIENT);
 		assertThatExceptionOfType(PersistenceException.class)
 				.isThrownBy(() -> {accountDAO.saveAccount(fakeAdmin);});
@@ -138,13 +138,13 @@ class AccountDAOTest {
     @Test
     void search_disabled_accounts() {
     	Account blackEntity = new Account
-				("Kylie", "Bunbury", "4444444444", LocalDate.of(1989, 01, 30), "blackmamba", false);
+				("Kylie", "Bunbury", "4444444444", "bunbury@greenmail.io", LocalDate.of(1989, 01, 30), "blackmamba", false);
 		Account vixenEntity = new Account
-		(		"Kae", "Yukawa", "1111111111", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
+				("Kae", "Yukawa", "1111111111", "yukawa@greenmail.io", LocalDate.of(1985, Month.AUGUST, 31), "supervixen", false);
 		Account blondeEntity = new Account
-				("Hannah", "Waddingham", "2222222222", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
+				("Hannah", "Waddingham", "2222222222", "waddingham@greenmail.io", LocalDate.of(1974, Month.JULY, 28), "bustyblonde", false);
 		Account gingerEntity = new Account
-				("Ella", "Hughes", "3333333333", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
+				("Ella", "Hughes", "3333333333", "hughes@greenmail.io", LocalDate.of(1995, Month.JUNE, 13), "gingerchick", false);
     	List<Account> accounts = new ArrayList<>();
     	Collections.addAll(accounts, blackEntity, vixenEntity, blondeEntity, gingerEntity);
     	accounts.forEach(accountDAO::saveAccount);
