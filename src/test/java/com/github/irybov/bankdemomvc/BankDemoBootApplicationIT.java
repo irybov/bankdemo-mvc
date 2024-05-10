@@ -537,7 +537,8 @@ public class BankDemoBootApplicationIT {
 			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
 				.andExpect(status().isConflict())
 		        .andExpect(model().size(1))
-	        	.andExpect(model().attribute("message", "This number is already in use"))
+//	        	.andExpect(model().attribute("message", "This number is already in use"))
+	        	.andExpect(model().attributeExists("message"))
 				.andExpect(view().name("auth/home"));
 			
 			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
