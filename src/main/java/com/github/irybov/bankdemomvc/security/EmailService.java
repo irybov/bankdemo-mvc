@@ -41,7 +41,7 @@ public class EmailService {
 		
 		String tail = random.nextString();
 		String link = "<a href='http://" + uri + ":" + port + path + "/activate/" + 
-												tail + "'>Activate your account</a>";
+							tail + "' target=\"_blank\">Activate your account</a>";
 		
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 //		MimeBodyPart messageBodyPart = new MimeBodyPart();				

@@ -302,6 +302,14 @@ class AuthControllerTest {
 		mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());
 	}
 	
+	@WithMockUser(username = "0000000000", roles = "ADMIN")
+	@Test
+	void logout() throws Exception {
+		mockMVC.perform(post("/logout").with(csrf()))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/home?logout=true"));
+	}
+	
 	@Test
 	void accepted_registration() throws Exception {
 		

@@ -176,7 +176,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .invalidateHttpSession(true)
             .clearAuthentication(true)
             .deleteCookies("JSESSIONID")
-			.logoutSuccessUrl("/home")
+			.logoutSuccessUrl("/home?logout=true")
 				.and()
 			.httpBasic().disable();
 //			.and().cors().configurationSource(corsConfigurationSource());

@@ -403,6 +403,14 @@ public class BankDemoBootApplicationIT {
 			mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());			
 		}
 		
+		@WithMockUser(username = "0000000000", roles = "ADMIN")
+		@Test
+		void logout() throws Exception {
+			mockMVC.perform(post("/logout").with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/home?logout=true"));
+		}
+		
 		@Test
 		void accepted_registration() throws Exception {
 			
@@ -433,7 +441,7 @@ public class BankDemoBootApplicationIT {
 				assertTrue(GreenMailUtil.getBody(receivedMessage)
 						.startsWith("<a href='http://" + uri + ":" + port + path + "/activate/"));
 				assertTrue(GreenMailUtil.getBody(receivedMessage)
-						.endsWith("'>Activate your account</a>"));
+						.endsWith("' target=\"_blank\">Activate your account</a>"));
 				assertFalse(GreenMailUtil.getBody(receivedMessage).contains("Shit happens"));
 			});
 		}
