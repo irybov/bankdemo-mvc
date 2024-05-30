@@ -18,10 +18,12 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.github.irybov.bankdemomvc.controller.dto.AccountRequest;
@@ -137,6 +139,7 @@ public class AuthController extends BaseController {
 	@ApiOperation("Acivates account by email link")
 	@GetMapping("/activate/{tail}")
 //	@Validated
+	@CrossOrigin(originPatterns = "*", methods = RequestMethod.GET, allowCredentials="true")
 	public String activateAccount(@PathVariable 
 			@NotBlank(message = "Path variable must not be blank") 
 			@Size(min=8, max=8, message = "Path variable should be 8 chars length") String tail, 

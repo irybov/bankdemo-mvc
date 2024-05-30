@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,6 +47,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -62,6 +64,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -112,6 +115,8 @@ class AuthControllerTest {
 	}
 	
 	private String mailbox;
+	@Value("${external.payment-service}")
+	private String externalURL;
 	
 	@BeforeAll
 	void set_up() {
@@ -298,8 +303,24 @@ class AuthControllerTest {
 	
 	@Test
 	void unauthorized_denied() throws Exception {
-//		mockMVC.perform(get("/success")).andExpect(status().isUnauthorized());
+		mockMVC.perform(get("/success"))
+			.andExpect(unauthenticated())
+			.andExpect(status().is3xxRedirection());
 		mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());
+	}
+	
+	@WithAnonymousUser
+	@Test
+	void anonimuos_allowed() throws Exception {
+		mockMVC.perform(get("/home")).andExpect(status().isOk());
+		mockMVC.perform(get("/register")).andExpect(status().isOk());
+	}
+	
+	@WithMockUser(username = "0000000000", roles = "ADMIN")
+	@Test
+	void authorized_refused() throws Exception {
+		mockMVC.perform(get("/home")).andExpect(status().isForbidden());
+		mockMVC.perform(get("/register")).andExpect(status().isForbidden());
 	}
 	
 	@WithMockUser(username = "0000000000", roles = "ADMIN")
@@ -395,7 +416,7 @@ class AuthControllerTest {
 		when(accounts.get(tail)).thenReturn(accountRequest);
 		when(accounts.remove(tail)).thenReturn(accountRequest);
 		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isCreated())
 	        .andExpect(model().size(1))
         	.andExpect(model().attribute("success", "Your account has been created"))
@@ -418,7 +439,7 @@ class AuthControllerTest {
 		when(accounts.containsKey(tail)).thenReturn(true);
 		when(accounts.get(tail)).thenReturn(accountRequest);
 		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isConflict())
 	        .andExpect(model().size(1))
         	.andExpect(model().attribute("message", "This number is already in use"))
@@ -443,7 +464,7 @@ class AuthControllerTest {
 	void violated_activation() throws Exception {
 		
 		String tail = "tail";		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isBadRequest())
 	        .andExpect(model().size(1))
 	    	.andExpect(model().attribute("violations", any(List.class)))
@@ -451,7 +472,7 @@ class AuthControllerTest {
 			.andExpect(view().name("error"));
 		
 		tail = " ";
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isBadRequest())
 	        .andExpect(model().size(1))
 	    	.andExpect(model().attribute("violations", any(List.class)))
@@ -459,10 +480,10 @@ class AuthControllerTest {
 			.andExpect(view().name("error"));
 		
 		tail = "";
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isNotFound());
 		tail = null;
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 			.andExpect(status().isNotFound());
 	}
 	

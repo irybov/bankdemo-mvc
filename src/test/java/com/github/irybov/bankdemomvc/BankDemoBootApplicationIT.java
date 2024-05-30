@@ -257,6 +257,8 @@ public class BankDemoBootApplicationIT {
 		private int port;
 		@Value("${server.servlet.context-path}")
 		private String path;
+		@Value("${external.payment-service}")
+		private String externalURL;
 	    
 		@RegisterExtension
 		GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
@@ -519,7 +521,7 @@ public class BankDemoBootApplicationIT {
 			List<String> keys = new ArrayList<>(accounts.keySet());
 			String tail = keys.get(0);
 			
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isCreated())
 		        .andExpect(model().size(1))
 	        	.andExpect(model().attribute("success", "Your account has been created"))
@@ -542,14 +544,14 @@ public class BankDemoBootApplicationIT {
 			accountRequest.setPhone(PHONE);
 			
 			accounts.put(tail, accountRequest);
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isConflict())
 		        .andExpect(model().size(1))
 //	        	.andExpect(model().attribute("message", "This number is already in use"))
 	        	.andExpect(model().attributeExists("message"))
 				.andExpect(view().name("auth/home"));
 			
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isGone())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("message", "Link has been expired, try to register again"))
@@ -560,7 +562,7 @@ public class BankDemoBootApplicationIT {
 		void violated_activation() throws Exception {
 			
 			String tail = "tail";		
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isBadRequest())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("violations", any(List.class)))
@@ -568,7 +570,7 @@ public class BankDemoBootApplicationIT {
 				.andExpect(view().name("error"));
 			
 			tail = " ";
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isBadRequest())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("violations", any(List.class)))
@@ -576,10 +578,10 @@ public class BankDemoBootApplicationIT {
 				.andExpect(view().name("error"));
 			
 			tail = "";
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isNotFound());
 			tail = null;
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
 				.andExpect(status().isNotFound());
 		}
 		

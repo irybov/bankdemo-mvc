@@ -56,10 +56,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		this.accountDetailsService = accountDetailsService;
 	}
 	
-    private static final String[] WHITE_LIST_URLS = { 
+    private static final String[] GHOST_LIST_URLS = {
     		"/home", 
+ //   		"/login", 
+    		"/register"
+    };
+    private static final String[] WHITE_LIST_URLS = { 
+//    		"/home", 
     		"/login", 
-    		"/register", 
+//   		"/register", 
     		"/confirm", 
     		"/activate/*", 
 //    		"/success", 
@@ -73,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     		"/accounts/show", 
     		"/accounts/password"
     };
-    private static final String[] ADMIN_LIST_URLS = {
+    private static final String[] ADMINS_LIST_URLS = {
     		"/configuration/**", 
 			"/swagger*/**", 
 			"/**/api-docs/**", 
@@ -146,8 +151,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	        	.and()
 			.authorizeRequests()
 			.mvcMatchers(WHITE_LIST_URLS).permitAll()
+			.mvcMatchers(GHOST_LIST_URLS).anonymous()
 			.mvcMatchers(SHARED_LIST_URLS).hasAnyRole("ADMIN", "CLIENT")
-			.mvcMatchers(ADMIN_LIST_URLS).hasRole("ADMIN")
+			.mvcMatchers(ADMINS_LIST_URLS).hasRole("ADMIN")
 //			.antMatchers("/actuator/**").hasRole("REMOTE")
 			.anyRequest().authenticated()
 				.and()
