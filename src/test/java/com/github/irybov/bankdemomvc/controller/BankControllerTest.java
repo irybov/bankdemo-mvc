@@ -58,6 +58,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 //import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -980,21 +981,21 @@ class BankControllerTest {
 	@Test
 	void check_cors_and_xml_support() throws Exception {
 		
-		mockMVC.perform(options("/bills/external").header("Origin", externalURL))
+		mockMVC.perform(options("/bills/external").header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isOk());
 		
-		mockMVC.perform(post("/bills/external").header("Origin", externalURL)
+		mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL)
 												.contentType(MediaType.APPLICATION_XML))
 			.andExpect(status().isBadRequest());
 		
-		mockMVC.perform(post("/bills/external").header("Origin", "http://evildevil.com")
+		mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, "http://evildevil.com")
 												.contentType(MediaType.APPLICATION_XML))
 			.andExpect(status().isForbidden());
 		
-		mockMVC.perform(get("/bills/notify").header("Origin", externalURL))
+		mockMVC.perform(get("/bills/notify").header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isForbidden());
 		
-		mockMVC.perform(post("/bills/external").header("Origin", externalURL))
+		mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isUnsupportedMediaType());
 		
 		
@@ -1008,7 +1009,7 @@ class BankControllerTest {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		OperationRequest dto = new OperationRequest(777, 3, "USD", 0.01, "Demo");
-		mockMVC.perform(post("/bills/external").header("Origin", externalURL)
+		mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL)
 												.accept(MediaType.APPLICATION_XML)
 												.contentType(MediaType.APPLICATION_XML)
 												.content(xmlMapper.writeValueAsString(dto))

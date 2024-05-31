@@ -55,6 +55,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -416,7 +417,7 @@ class AuthControllerTest {
 		when(accounts.get(tail)).thenReturn(accountRequest);
 		when(accounts.remove(tail)).thenReturn(accountRequest);
 		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isCreated())
 	        .andExpect(model().size(1))
         	.andExpect(model().attribute("success", "Your account has been created"))
@@ -439,7 +440,7 @@ class AuthControllerTest {
 		when(accounts.containsKey(tail)).thenReturn(true);
 		when(accounts.get(tail)).thenReturn(accountRequest);
 		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isConflict())
 	        .andExpect(model().size(1))
         	.andExpect(model().attribute("message", "This number is already in use"))
@@ -451,7 +452,7 @@ class AuthControllerTest {
 	    
 	    when(accounts.containsKey(tail)).thenReturn(false);
 	    
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isGone())
 	        .andExpect(model().size(1))
 	    	.andExpect(model().attribute("message", "Link has been expired, try to register again"))
@@ -464,7 +465,7 @@ class AuthControllerTest {
 	void violated_activation() throws Exception {
 		
 		String tail = "tail";		
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isBadRequest())
 	        .andExpect(model().size(1))
 	    	.andExpect(model().attribute("violations", any(List.class)))
@@ -472,7 +473,7 @@ class AuthControllerTest {
 			.andExpect(view().name("error"));
 		
 		tail = " ";
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isBadRequest())
 	        .andExpect(model().size(1))
 	    	.andExpect(model().attribute("violations", any(List.class)))
@@ -480,10 +481,10 @@ class AuthControllerTest {
 			.andExpect(view().name("error"));
 		
 		tail = "";
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isNotFound());
 		tail = null;
-		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+		mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 			.andExpect(status().isNotFound());
 	}
 	

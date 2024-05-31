@@ -521,7 +521,7 @@ public class BankDemoBootApplicationIT {
 			List<String> keys = new ArrayList<>(accounts.keySet());
 			String tail = keys.get(0);
 			
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isCreated())
 		        .andExpect(model().size(1))
 	        	.andExpect(model().attribute("success", "Your account has been created"))
@@ -544,14 +544,14 @@ public class BankDemoBootApplicationIT {
 			accountRequest.setPhone(PHONE);
 			
 			accounts.put(tail, accountRequest);
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isConflict())
 		        .andExpect(model().size(1))
 //	        	.andExpect(model().attribute("message", "This number is already in use"))
 	        	.andExpect(model().attributeExists("message"))
 				.andExpect(view().name("auth/home"));
 			
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isGone())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("message", "Link has been expired, try to register again"))
@@ -562,7 +562,7 @@ public class BankDemoBootApplicationIT {
 		void violated_activation() throws Exception {
 			
 			String tail = "tail";		
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isBadRequest())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("violations", any(List.class)))
@@ -570,7 +570,7 @@ public class BankDemoBootApplicationIT {
 				.andExpect(view().name("error"));
 			
 			tail = " ";
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isBadRequest())
 		        .andExpect(model().size(1))
 		    	.andExpect(model().attribute("violations", any(List.class)))
@@ -578,10 +578,10 @@ public class BankDemoBootApplicationIT {
 				.andExpect(view().name("error"));
 			
 			tail = "";
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isNotFound());
 			tail = null;
-			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header("Origin", externalURL))
+			mockMVC.perform(get("/activate/{tail}", tail).with(csrf()).header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isNotFound());
 		}
 		
@@ -1387,26 +1387,26 @@ public class BankDemoBootApplicationIT {
 		@Test
 		void check_cors_and_xml_support() throws Exception {
 			
-			mockMVC.perform(options("/bills/external").header("Origin", externalURL))
+			mockMVC.perform(options("/bills/external").header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isOk());
 			
-			mockMVC.perform(post("/bills/external").header("Origin", externalURL)
+			mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL)
 													.contentType(MediaType.APPLICATION_XML))
 				.andExpect(status().isBadRequest());
 			
-			mockMVC.perform(post("/bills/external").header("Origin", "http://evildevil.com")
+			mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, "http://evildevil.com")
 													.contentType(MediaType.APPLICATION_XML))
 				.andExpect(status().isForbidden());
 			
-			mockMVC.perform(get("/bills/notify").header("Origin", externalURL))
+			mockMVC.perform(get("/bills/notify").header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isForbidden());
 			
-			mockMVC.perform(post("/bills/external").header("Origin", externalURL))
+			mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL))
 				.andExpect(status().isUnsupportedMediaType());
 			
 			XmlMapper xmlMapper = new XmlMapper();
 			OperationRequest dto = new OperationRequest(777, 2, "USD", 0.01, "Demo");
-			mockMVC.perform(post("/bills/external").header("Origin", externalURL)
+			mockMVC.perform(post("/bills/external").header(HttpHeaders.ORIGIN, externalURL)
 													.accept(MediaType.APPLICATION_XML)
 													.contentType(MediaType.APPLICATION_XML)
 													.content(xmlMapper.writeValueAsString(dto))
