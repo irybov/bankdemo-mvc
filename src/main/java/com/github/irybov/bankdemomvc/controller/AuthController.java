@@ -10,8 +10,10 @@ import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -24,10 +26,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.irybov.bankdemomvc.controller.dto.AccountRequest;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
+import com.github.irybov.bankdemomvc.security.AccountDetails;
 import com.github.irybov.bankdemomvc.security.EmailService;
 import com.github.irybov.bankdemomvc.service.AccountService;
 
@@ -54,13 +59,25 @@ public class AuthController extends BaseController {
 	@Autowired
 	private EmailService emailService;
 	private Map<String, AccountRequest> accounts = new ConcurrentReferenceHashMap<>();
-
+	@Autowired
+	private Cache<String, String> cache;
+/*
 	@ApiOperation("Returns apllication's start html-page")
 	@GetMapping("/home")
 	public String getStartPage() {
 		return "auth/home";
 	}
-	
+*/
+	@ApiOperation("Sends OTP to email")
+	@PreAuthorize("hasRole('TEMP')")
+	@PostMapping("/code")
+	@ResponseBody
+	public void getCode(@AuthenticationPrincipal AccountDetails details) {
+		String email = details.getAccount().getEmail();
+		String code = emailService.sendVerificationCode(email);
+		cache.put(email, code);
+	}
+		
 	@ApiOperation("Returns registration html-page")
 	@GetMapping("/register")
 	public String createAccount(Model model) {

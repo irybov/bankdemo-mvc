@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,12 +31,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.persistence.PersistenceException;
 
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -56,6 +62,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -73,6 +80,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.config.SecurityConfig;
 import com.github.irybov.bankdemomvc.controller.AuthController;
@@ -100,16 +108,20 @@ class AuthControllerTest {
 	@Qualifier("accountServiceAlias")
 	private AccountService accountService;
 	@MockBean
-	private UserDetailsService accountDetailsService;
+	private AccountDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	
 	@Autowired
 	ApplicationContext context;
+	@MockBean
+	PasswordEncoder passwordEncoder;
 	
 	@MockBean
 	private EmailService emailService;
 	private Map<String, AccountRequest> accounts;
+	@MockBean
+	private Cache<String, String> cache;
 	
 	private Authentication authentication() {
 		return SecurityContextHolder.getContext().getAuthentication();
@@ -233,20 +245,67 @@ class AuthControllerTest {
 	}
 	
 	@Test
-	void correct_user_creds() throws Exception {
-
-		final String hashedPW = BCrypt.hashpw("superadmin", BCrypt.gensalt(4));
+	void obtain_verification_code() throws Exception {
 		
-		when(accountDetailsService.loadUserByUsername(anyString()))
-			.thenReturn(new AccountDetails(new Account
-			("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01), hashedPW, true)));
+		Account account = new Account("Admin", "Adminov", "0000000000", "@greenmail.io", LocalDate.of(2001, 01, 01),
+				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
+		account.addRole(Role.ADMIN);
+		AccountDetails details = new AccountDetails(account);
+		String email = account.getEmail();
+		String password = details.getPassword();
+		String code = "1234";
+		
+		doReturn(details).when(accountDetailsService).loadUserByUsername("0000000000");
+		doReturn(true).when(passwordEncoder).matches("superadmin", password);
+		doReturn(code).when(emailService).sendVerificationCode(email);
+		doNothing().when(cache).put(email, code);
+		
+		mockMVC.perform(post("/code").with(csrf()).with(httpBasic("0000000000", "superadmin")))
+			.andExpect(authenticated())
+			.andExpect(status().isOk());
+		
+		verify(accountDetailsService).loadUserByUsername("0000000000");
+		verify(passwordEncoder).matches("superadmin", password);
+		verify(emailService).sendVerificationCode(email);
+		verify(cache).put(email, code);
+	}
+/*	
+	@Test
+	void authentication_failures() throws Exception {
+		
+		
+		
+	}
+*/	
+	@Test
+	void correct_user_creds() throws Exception {
+		
+		Account account = new Account("Admin", "Adminov", "0000000000", "@greenmail.io", LocalDate.of(2001, 01, 01),
+				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
+		account.addRole(Role.ADMIN);
+		AccountDetails details = new AccountDetails(account);
+		String email = account.getEmail();
+		String password = details.getPassword();
+		String code = "1234";
 
-		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("superadmin"))
+		when(accountDetailsService.loadUserByUsername(anyString())).thenReturn(details);
+		when(passwordEncoder.matches("superadmin", password)).thenReturn(true);
+		when(cache.getIfPresent(email)).thenReturn(code);
+
+		mockMVC.perform(post("/auth").with(csrf())
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+	            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+	                    new BasicNameValuePair("phone", "0000000000"), 
+	                    new BasicNameValuePair("password", "superadmin"), 
+	                    new BasicNameValuePair("code", "1234")
+	    )))))
 			.andExpect(authenticated())
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/success"));
 		
 	    verify(accountDetailsService).loadUserByUsername(anyString());
+	    verify(passwordEncoder).matches("superadmin", password);
+		verify(cache).getIfPresent(email);
 	}
 	
 	@Test

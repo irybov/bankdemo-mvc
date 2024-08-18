@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -35,6 +36,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.irybov.bankdemomvc.security.AccountDetailsService;
+import com.github.irybov.bankdemomvc.security.CustomAuthenticationDetailsSource;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -49,21 +51,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 //	@Autowired
 //	private DataSource dataSource;
-	private final PasswordEncoder passwordEncoder;
-	private final UserDetailsService accountDetailsService;
-	public SecurityConfig(PasswordEncoder passwordEncoder, UserDetailsService accountDetailsService) {
-		this.passwordEncoder = passwordEncoder;
-		this.accountDetailsService = accountDetailsService;
+//    @Autowired
+//    private AuthenticationProvider authProvider;
+//    @Autowired
+//    private CustomAuthenticationDetailsSource authenticationDetailsSource;
+	
+	private final CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+	
+	private final AuthenticationProvider authProvider;
+	private final CustomAuthenticationDetailsSource authenticationDetailsSource;
+	public SecurityConfig(AuthenticationProvider authProvider, 
+			CustomAuthenticationDetailsSource authenticationDetailsSource) {
+		this.authProvider = authProvider;
+		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 	
     private static final String[] GHOST_LIST_URLS = {
     		"/home", 
- //   		"/login", 
+    		"/login", 
     		"/register"
     };
     private static final String[] WHITE_LIST_URLS = { 
 //    		"/home", 
-    		"/login", 
+//    		"/login", 
 //   		"/register", 
     		"/confirm", 
     		"/activate/*", 
@@ -110,12 +120,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.withUser("remote")
 			.password(passwordEncoder.encode("remote"))
 			.roles("REMOTE");
-	*/	
+	*/
+    	auth.authenticationProvider(authProvider);
+/*    	
         DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(accountDetailsService);
+        dao.setUserDetailsService(userDetailsService);
         dao.setPasswordEncoder(passwordEncoder);
         auth.authenticationProvider(dao);
-    	
+*/    	
 //        auth.userDetailsService(accountDetailsService)
 //            .passwordEncoder(passwordEncoder());
     }
@@ -136,7 +148,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		
-		CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+//		CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 
 		http
 			.sessionManagement()
@@ -173,6 +185,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.loginProcessingUrl("/auth")
 //			.successHandler((request, response, authentication) ->
 //			response.sendRedirect("/accounts/show/" + authentication.getName()))
+			.authenticationDetailsSource(authenticationDetailsSource)
 			.defaultSuccessUrl("/success", true)
             .failureUrl("/login?error=true")
 				.and()
@@ -187,13 +200,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.httpBasic().disable();
 //			.and().cors().configurationSource(corsConfigurationSource());
 //		http.headers().frameOptions().disable();
-	}
-	
+	}	
     @Override
-    public void configure(WebSecurity web) throws Exception {web.ignoring().antMatchers("/error");}
+    public void configure(WebSecurity web) throws Exception {web.ignoring().mvcMatchers("/error");}
     
     @Configuration
     @Order(Ordered.HIGHEST_PRECEDENCE)
+    public class OTPSecurityConfig extends WebSecurityConfigurerAdapter {
+    	
+//    	CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+    	
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        	auth.authenticationProvider(authProvider);
+        }
+    	
+    	@Override
+        protected void configure(HttpSecurity http) throws Exception {
+    		
+            http
+            	.csrf()
+    		    .csrfTokenRepository(csrfTokenRepository)
+    		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
+    		    	.and()
+    		    .mvcMatcher("/code")
+                .authorizeRequests()
+    			.mvcMatchers("/code").hasRole("TEMP")
+        			.and()
+                .httpBasic();
+        }
+    	
+    }
+    
+    @Configuration
+    @Order(Ordered.HIGHEST_PRECEDENCE+1)
     public static class RemoteSecurityConfig extends WebSecurityConfigurerAdapter {
     	
         @Override
@@ -216,10 +256,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             	.csrf()
 //    		    .ignoringAntMatchers(REMOTE_LIST_URLS)
     		    .disable()
+//    		    .mvcMatcher("/code")
                 .antMatcher("/actuator/**")
                 .authorizeRequests()
-//                .antMatchers(REMOTE_LIST_URLS).hasRole("REMOTE")
-                .anyRequest().hasRole("REMOTE")
+//    			.mvcMatchers("/code").hasRole("TEMP")
+                .antMatchers("/actuator/**").hasRole("REMOTE")
+//                .anyRequest().hasRole("REMOTE")
         			.and()
                 .httpBasic();
         }

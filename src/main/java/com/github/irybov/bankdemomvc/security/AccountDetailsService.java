@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ public class AccountDetailsService implements UserDetailsService {
 		
 	@Transactional(readOnly = true, noRollbackFor = Exception.class)
 	@Override
-	public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
+	public AccountDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
 		
 //		accountService = (AccountService) context.getBean("accountServiceAlias");
 		Account account = null;
