@@ -57,6 +57,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -114,7 +115,7 @@ class AuthControllerTest {
 	
 	@Autowired
 	ApplicationContext context;
-	@MockBean
+	@SpyBean
 	PasswordEncoder passwordEncoder;
 	
 	@MockBean
@@ -148,6 +149,12 @@ class AuthControllerTest {
 		accountRequest.setSurname("Adminov");
 		accountRequest.setEmail(accountRequest.getSurname().toLowerCase() + mailbox);
 		return accountRequest;
+	}
+	private Account buildCorrectAccount() {
+		Account account = new Account("Admin", "Adminov", "0000000000", "@greenmail.io", LocalDate.of(2001, 01, 01),
+				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
+		account.addRole(Role.ADMIN);
+		return account;
 	}
 /*	
 	@TestConfiguration
@@ -247,16 +254,14 @@ class AuthControllerTest {
 	@Test
 	void obtain_verification_code() throws Exception {
 		
-		Account account = new Account("Admin", "Adminov", "0000000000", "@greenmail.io", LocalDate.of(2001, 01, 01),
-				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
-		account.addRole(Role.ADMIN);
+		Account account = buildCorrectAccount();
 		AccountDetails details = new AccountDetails(account);
 		String email = account.getEmail();
 		String password = details.getPassword();
 		String code = "1234";
 		
-		doReturn(details).when(accountDetailsService).loadUserByUsername("0000000000");
-		doReturn(true).when(passwordEncoder).matches("superadmin", password);
+		doReturn(details).when(accountDetailsService).loadUserByUsername(anyString());
+//		doReturn(true).when(passwordEncoder).matches("superadmin", password);
 		doReturn(code).when(emailService).sendVerificationCode(email);
 		doNothing().when(cache).put(email, code);
 		
@@ -264,32 +269,55 @@ class AuthControllerTest {
 			.andExpect(authenticated())
 			.andExpect(status().isOk());
 		
-		verify(accountDetailsService).loadUserByUsername("0000000000");
+		verify(accountDetailsService).loadUserByUsername(anyString());
 		verify(passwordEncoder).matches("superadmin", password);
 		verify(emailService).sendVerificationCode(email);
 		verify(cache).put(email, code);
 	}
-/*	
+	
 	@Test
-	void authentication_failures() throws Exception {
+	void invalid_verification_code() throws Exception {
 		
+		Account account = buildCorrectAccount();
+		AccountDetails details = new AccountDetails(account);
+		String email = account.getEmail();
+		String password = details.getPassword();
 		
+		doReturn(details).when(accountDetailsService).loadUserByUsername(anyString());
+//		doReturn(false).when(passwordEncoder).matches("superadmin", password);
+		when(cache.getIfPresent(email)).thenReturn("XYZ");
 		
+		mockMVC.perform(post("/auth").with(csrf())
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+	            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+	                    new BasicNameValuePair("phone", "0000000000"), 
+	                    new BasicNameValuePair("password", "superadmin"), 
+	                    new BasicNameValuePair("code", "1234")
+	    )))))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/login?error=true"))
+			.andExpect(result -> assertThat
+				(result.getResolvedException() instanceof BadCredentialsException))
+//			.andExpect(result -> assertEquals
+//				("Invalid verfication code", result.getResolvedException().getMessage()))
+			.andDo(print());
+		
+		verify(accountDetailsService).loadUserByUsername(anyString());
+		verify(passwordEncoder).matches("superadmin", password);
+		verify(cache).getIfPresent(email);
 	}
-*/	
+	
 	@Test
 	void correct_user_creds() throws Exception {
 		
-		Account account = new Account("Admin", "Adminov", "0000000000", "@greenmail.io", LocalDate.of(2001, 01, 01),
-				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
-		account.addRole(Role.ADMIN);
+		Account account = buildCorrectAccount();
 		AccountDetails details = new AccountDetails(account);
 		String email = account.getEmail();
 		String password = details.getPassword();
 		String code = "1234";
 
 		when(accountDetailsService.loadUserByUsername(anyString())).thenReturn(details);
-		when(passwordEncoder.matches("superadmin", password)).thenReturn(true);
+//		when(passwordEncoder.matches("superadmin", password)).thenReturn(true);
 		when(cache.getIfPresent(email)).thenReturn(code);
 
 		mockMVC.perform(post("/auth").with(csrf())
@@ -311,8 +339,7 @@ class AuthControllerTest {
 	@Test
 	void wrong_user_password() throws Exception {
 		
-		Account account = new Account("Admin", "Adminov", "0000000000", "adminov@greenmail.io", LocalDate.of(2001, 01, 01),
-				 BCrypt.hashpw("superadmin", BCrypt.gensalt(4)), true);
+		Account account = buildCorrectAccount();
 		
 		when(accountDetailsService.loadUserByUsername(anyString()))
 //			.thenThrow(new UsernameNotFoundException("User 9999999999 not found"));

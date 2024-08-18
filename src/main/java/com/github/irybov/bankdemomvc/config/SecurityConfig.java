@@ -68,12 +68,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
     private static final String[] GHOST_LIST_URLS = {
     		"/home", 
-    		"/login", 
+//    		"/login", 
     		"/register"
     };
     private static final String[] WHITE_LIST_URLS = { 
 //    		"/home", 
-//    		"/login", 
+    		"/login", 
 //   		"/register", 
     		"/confirm", 
     		"/activate/*", 

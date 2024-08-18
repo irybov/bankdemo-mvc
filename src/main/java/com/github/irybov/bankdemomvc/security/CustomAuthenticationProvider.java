@@ -39,6 +39,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         
         if(auth.getDetails() instanceof CustomWebAuthenticationDetails) {
         	String code = ((CustomWebAuthenticationDetails) auth.getDetails()).getCode();
+        	code.trim();
+        	if(code == null || code.isEmpty()) {
+        		throw new BadCredentialsException("Absent verfication code");
+        	}
         	if(!cache.getIfPresent(details.getAccount().getEmail()).equals(code)) {
         		throw new BadCredentialsException("Invalid verfication code");
         	}

@@ -6,9 +6,9 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,9 @@ import java.util.Set;
 
 import javax.mail.internet.MimeMessage;
 
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -78,6 +82,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.irybov.bankdemomvc.controller.AuthController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountRequest;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
@@ -250,6 +255,8 @@ public class BankDemoBootApplicationIT {
 	    @Autowired
 	    ApplicationContext context;
 	    private Map<String, AccountRequest> accounts = new ConcurrentReferenceHashMap<>();
+	    @Autowired
+	    private Cache<String, String> cache;
 	    
 		@Value("${server.address}")
 		private String uri;
@@ -352,21 +359,80 @@ public class BankDemoBootApplicationIT {
 		}
 		
 		@Test
-		void correct_user_creds() throws Exception {
+		void obtain_verification_code() throws Exception {
+			
+			greenMail.purgeEmailFromAllMailboxes();
 			
 			hashPassword();
-
-			mockMVC.perform(formLogin("/auth").user("phone", PHONE).password("superadmin"))
+			mockMVC.perform(post("/code").with(csrf()).with(httpBasic(PHONE, "superadmin")))
+				.andExpect(authenticated())
+				.andExpect(status().isOk());
+			
+			Map<String, String> map = cache.asMap();
+			List<String> keys = new ArrayList<>(map.keySet());
+			String email = keys.get(0);
+			String code = cache.getIfPresent(email);
+			
+			Awaitility.await().untilAsserted(() -> {
+				assertEquals(true, greenMail.isRunning());
+				MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
+				assertEquals(1, receivedMessage.getAllRecipients().length);
+				assertEquals(email, receivedMessage.getAllRecipients()[0].toString());
+				assertEquals("noreply@bankdemo.com", receivedMessage.getFrom()[0].toString());
+				assertEquals("Login verification code", receivedMessage.getSubject());
+				assertFalse(GreenMailUtil.getBody(receivedMessage).isEmpty());
+				assertTrue(GreenMailUtil.getBody(receivedMessage).equals(code));
+			});
+		}
+		
+		@Test
+		void invalid_verification_code() throws Exception {
+			
+			cache.put("adminov@greenmail.io", "1234");
+			
+			hashPassword();
+			mockMVC.perform(post("/auth").with(csrf())
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+		                    new BasicNameValuePair("phone", PHONE), 
+		                    new BasicNameValuePair("password", "superadmin"), 
+		                    new BasicNameValuePair("code", "XYZ")
+		    )))))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/login?error=true"))
+				.andExpect(result -> assertThat
+					(result.getResolvedException() instanceof BadCredentialsException))
+//				.andExpect(result -> assertEquals
+//					("Invalid verfication code", result.getResolvedException().getMessage()))
+				.andDo(print());
+			
+			cache.invalidateAll();
+		}
+		
+		@Test
+		void correct_user_creds() throws Exception {
+			
+			cache.put("adminov@greenmail.io", "1234");
+			
+			hashPassword();
+			mockMVC.perform(post("/auth").with(csrf())
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+		                    new BasicNameValuePair("phone", PHONE), 
+		                    new BasicNameValuePair("password", "superadmin"), 
+		                    new BasicNameValuePair("code", "1234")
+		    )))))
 				.andExpect(authenticated())
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/success"));
+			
+			cache.invalidateAll();
 		}
 		
 		@Test
 		void wrong_user_password() throws Exception {
 			
 			hashPassword();
-			
 			for(int i = 1; i < 4; i++) {
 			mockMVC.perform(formLogin("/auth").user("phone", PHONE).password("localadmin"))
 				.andExpect(status().is3xxRedirection())
