@@ -74,6 +74,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.irybov.bankdemomvc.config.CaffeineConfig;
 import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.controller.BankController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
@@ -91,7 +92,7 @@ import com.github.irybov.bankdemomvc.service.OperationService;
 
 @WithMockUser(username = "4444444444", roles = "CLIENT")
 @WebMvcTest(BankController.class)
-@Import(SecurityBeans.class)
+@Import({SecurityBeans.class, CaffeineConfig.class})
 class BankControllerTest {
 
 	@MockBean
@@ -104,7 +105,7 @@ class BankControllerTest {
 	@Qualifier("operationServiceAlias")
 	private OperationService operationService;
 	@MockBean
-	private UserDetailsService accountDetailsService;
+	private  AccountDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	@Autowired

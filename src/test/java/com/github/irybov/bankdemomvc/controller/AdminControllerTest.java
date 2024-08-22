@@ -73,6 +73,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.irybov.bankdemomvc.config.CaffeineConfig;
 import com.github.irybov.bankdemomvc.config.SecurityBeans;
 import com.github.irybov.bankdemomvc.controller.AdminController;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
@@ -89,7 +90,7 @@ import com.opencsv.CSVWriter;
 
 @WithMockUser(username = "0000000000", roles = "ADMIN")
 @WebMvcTest(AdminController.class)
-@Import(SecurityBeans.class)
+@Import({SecurityBeans.class, CaffeineConfig.class})
 class AdminControllerTest {
 
 	@MockBean
@@ -102,7 +103,7 @@ class AdminControllerTest {
 	@Qualifier("operationServiceAlias")
 	private OperationService operationService;
 	@MockBean
-	private UserDetailsService accountDetailsService;
+	private  AccountDetailsService accountDetailsService;
 	@Autowired
 	private MockMvc mockMVC;
 	@Autowired
