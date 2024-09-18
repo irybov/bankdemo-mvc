@@ -44,7 +44,7 @@ public abstract class Login {
 	@Column(nullable = false, updatable = false)
 	private String sourceIp;
 	
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumn(name="account_id", nullable = false, updatable = false)
 	private Account account;
     
