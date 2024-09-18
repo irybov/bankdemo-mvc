@@ -26,7 +26,7 @@
 			<br>	 
 			<p><input type="button" value="Log In" class="btn btn-success" onclick="getCode()"/>
 		</div>
-		<div id="verification">			
+		<div id="verification" style="display: none;">			
 			<p><input type="tel" pattern="[0-9]{4}" th:name="code" id="code" class="form-control"
 				 placeholder="Code" required autofocus style="width:auto"/>
 			<br>	 
@@ -37,7 +37,7 @@
 		<input type="reset" value="Clear" class="btn btn-warning">
 	</form>
 
-<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>	
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
 <script type="text/javascript">
 function getCode(){
     
