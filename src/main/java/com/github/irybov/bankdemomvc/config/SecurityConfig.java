@@ -152,9 +152,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http
 			.sessionManagement()
-//			.invalidSessionUrl("/login?invalid-session=true")
+			.invalidSessionUrl("/login?invalid-session=true")
 	        .maximumSessions(1)
-//	        .expiredUrl("/login?invalid-session=true")
+	        .expiredUrl("/login?invalid-session=true")
 	        .maxSessionsPreventsLogin(true)
 	        	.and()
 //	        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -180,12 +180,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //		    .ignoringAntMatchers(REMOTE_LIST_URLS)
 		        .and()
 			.formLogin()
+			.authenticationDetailsSource(authenticationDetailsSource)
 			.usernameParameter("phone")
 			.loginPage("/home")
 			.loginProcessingUrl("/auth")
 //			.successHandler((request, response, authentication) ->
 //			response.sendRedirect("/accounts/show/" + authentication.getName()))
-			.authenticationDetailsSource(authenticationDetailsSource)
 			.defaultSuccessUrl("/success", true)
             .failureUrl("/login?error=true")
 				.and()
@@ -209,20 +209,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public class OTPSecurityConfig extends WebSecurityConfigurerAdapter {
     	
 //    	CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
-    	
+/*    	
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         	auth.authenticationProvider(authProvider);
         }
-    	
+ */   	
     	@Override
         protected void configure(HttpSecurity http) throws Exception {
     		
             http
-            	.csrf()
-    		    .csrfTokenRepository(csrfTokenRepository)
-    		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
-    		    	.and()
+            	.csrf().disable()
+//    		    .csrfTokenRepository(csrfTokenRepository)
+//    		    .sessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository))
+//    		    	.and()
     		    .mvcMatcher("/code")
                 .authorizeRequests()
     			.mvcMatchers("/code").hasRole("TEMP")

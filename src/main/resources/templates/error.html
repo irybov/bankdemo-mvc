@@ -13,6 +13,9 @@
 	<h3>Generic error</h3>
 	<hr>
 	<br>
+	<div th:if="${param.error}" class="error">
+		<p class="text-danger">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>
+	</div>
 	<div class="container pt-5">
 		<div th:each="violation: ${violations}">
 			<ul>

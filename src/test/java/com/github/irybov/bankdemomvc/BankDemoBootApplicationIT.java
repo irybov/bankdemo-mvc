@@ -364,7 +364,7 @@ public class BankDemoBootApplicationIT {
 			greenMail.purgeEmailFromAllMailboxes();
 			
 			hashPassword();
-			mockMVC.perform(post("/code").with(csrf()).with(httpBasic(PHONE, "superadmin")))
+			mockMVC.perform(get("/code").with(httpBasic(PHONE, "superadmin")))
 				.andExpect(authenticated())
 				.andExpect(status().isOk());
 			
@@ -443,14 +443,23 @@ public class BankDemoBootApplicationIT {
 //					("Bad Credentials", result.getResolvedException().getMessage()))
 				.andDo(print());
 			}
-			mockMVC.perform(formLogin("/auth").user("phone", PHONE).password("superladmin"))
+			
+			cache.put("adminov@greenmail.io", "1234");
+			mockMVC.perform(post("/auth").with(csrf())
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+		                    new BasicNameValuePair("phone", PHONE), 
+		                    new BasicNameValuePair("password", "superadmin"), 
+		                    new BasicNameValuePair("code", "1234")
+		    )))))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/login?error=true"))
 				.andExpect(result -> assertThat
 					(result.getResolvedException() instanceof DisabledException))
 //				.andExpect(result -> assertEquals
 //					("User is disabled", result.getResolvedException().getMessage()))
-				.andDo(print());
+				.andDo(print());			
+			cache.invalidateAll();
 		}
 		
 		@WithMockUser(username = "9999999999")

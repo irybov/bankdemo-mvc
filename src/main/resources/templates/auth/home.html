@@ -15,12 +15,12 @@
 			onclick="window.location.href = '/bankdemo/register'">
 		<input type="button" class="btn btn-success" value="Log In"
 			onclick="window.location.href = '/bankdemo/login'">
+		<br>
+		<div th:if="${param.logout}" class="fine">
+			<p class="text-warning">You have been logged out</p>
+		</div>
 	</div>
 
-	<br>
-	<div th:if="${param.logout}" class="fine">
-		<p class="text-warning">You have been logged out</p>
-	</div>
 	<p th:text="${message}" class="error"/>
 </body>
 </html>

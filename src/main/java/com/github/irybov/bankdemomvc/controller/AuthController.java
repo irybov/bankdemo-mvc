@@ -70,7 +70,7 @@ public class AuthController extends BaseController {
 */
 	@ApiOperation("Sends OTP to email")
 	@PreAuthorize("hasRole('TEMP')")
-	@PostMapping("/code")
+	@GetMapping("/code")
 	@ResponseBody
 	public void getCode(@AuthenticationPrincipal AccountDetails details) {
 		String email = details.getAccount().getEmail();

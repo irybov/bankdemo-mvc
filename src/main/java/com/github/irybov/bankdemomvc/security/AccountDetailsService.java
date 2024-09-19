@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.DisabledException;
 //import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -54,7 +55,8 @@ public class AccountDetailsService implements UserDetailsService {
 //		else if(accountService instanceof AccountServiceDAO) {
 			account = dao.getWithRoles(phone);
 			if(account == null) throw new UsernameNotFoundException("User " + phone + " not found");
-		}	
+		}
+		if(!account.isActive()) throw new DisabledException("User is disabled");
 		return new AccountDetails(account);
 	}
 	

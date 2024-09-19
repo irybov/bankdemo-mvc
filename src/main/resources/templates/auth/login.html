@@ -16,7 +16,7 @@
 		<div th:if="${param.error}" class="error">
 			<p class="text-danger">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>
 		</div>
-		<p th:text="${success}" class="fine"/>
+<!-- 		<p th:text="${success}" class="fine"/> -->
 	
 		<div id="credentials">			
 			<p><input type="tel" pattern="[0-9]{10}" th:name="phone" id="phone" class="form-control"
@@ -40,20 +40,20 @@
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
 <script type="text/javascript">
 function getCode(){
-    
+/* 
     var token = $("meta[name='_csrf']").attr("content");
     var header = $("meta[name='_csrf_header']").attr("content");
     var requestHeaders = {};
     requestHeaders[header] = token;
-    
+ */
 	$("#credentials").hide();
     $("#verification").show();
     var phone = $("#phone").val();
     var password = $("#password").val();
     $.ajax({
-        url: "/code",
-        type: "POST",
-        headers: requestHeaders,
+        url: "/bankdemo/code",
+        type: "GET",
+//         headers: requestHeaders,
         beforeSend: function(xhr)
         	{xhr.setRequestHeader("Authorization", "Basic " + btoa(phone + ":" + password));}
     });

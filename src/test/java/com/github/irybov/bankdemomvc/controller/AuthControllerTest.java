@@ -265,7 +265,7 @@ class AuthControllerTest {
 		doReturn(code).when(emailService).sendVerificationCode(email);
 		doNothing().when(cache).put(email, code);
 		
-		mockMVC.perform(post("/code").with(csrf()).with(httpBasic("0000000000", "superadmin")))
+		mockMVC.perform(get("/code").with(httpBasic("0000000000", "superadmin")))
 			.andExpect(authenticated())
 			.andExpect(status().isOk());
 		
@@ -358,7 +358,7 @@ class AuthControllerTest {
 			.andDo(print());
 		}
 		
-		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("localadmin"))
+		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("superadmin"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/login?error=true"))
 			.andExpect(result -> assertThat
