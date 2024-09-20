@@ -65,14 +65,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.irybov.bankdemomvc.controller.dto.AccountResponse;
 import com.github.irybov.bankdemomvc.controller.dto.BillResponse;
 import com.github.irybov.bankdemomvc.controller.dto.OperationResponse;
+import com.github.irybov.bankdemomvc.page.PagebleAPI;
 import com.github.irybov.bankdemomvc.service.AccountService;
 import com.github.irybov.bankdemomvc.service.BillService;
 import com.github.irybov.bankdemomvc.service.OperationService;
 import com.opencsv.CSVWriter;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api(description = "Controller for admin's actions ")
 @Slf4j
@@ -308,13 +312,17 @@ public class AdminController extends BaseController {
 		return "account/history";
 	}
 	@ApiOperation("Returns filtered pageable list of bill's operations")
+	@PagebleAPI
 	@GetMapping("/operations/list/{id}")
 	@ResponseBody
 	public Page<OperationResponse> getOperationsList(@PathVariable int id,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> mindate, 
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> maxdate,
 			@RequestParam Optional<Double> minval, @RequestParam Optional<Double> maxval,
-			@RequestParam Optional<String> action, Pageable pageable) {
+			@RequestParam Optional<String> action, @ApiIgnore(
+                    "Ignored because swagger ui shows the wrong params, " +
+                    "instead they are explained in the implicit params"
+            )Pageable pageable) {
 		
 //		final String FROM = mindate.orElse("1900-01-01");
 //		final String TO = maxdate.orElse(LocalDate.now().toString());
