@@ -39,7 +39,7 @@ import com.github.irybov.bankdemomvc.security.AccountDetailsService;
 import com.github.irybov.bankdemomvc.security.CustomAuthenticationDetailsSource;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Value("${server.address}")

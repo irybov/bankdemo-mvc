@@ -358,6 +358,10 @@ class AuthControllerTest {
 			.andDo(print());
 		}
 		
+		account.setActive(false);
+		when(accountDetailsService.loadUserByUsername(anyString()))
+			.thenThrow(new DisabledException("User is disabled"));
+		
 		mockMVC.perform(formLogin("/auth").user("phone", "0000000000").password("superadmin"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/login?error=true"))
@@ -393,7 +397,9 @@ class AuthControllerTest {
 		mockMVC.perform(get("/success"))
 			.andExpect(unauthenticated())
 			.andExpect(status().is3xxRedirection());
-		mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());
+		mockMVC.perform(post("/confirm"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/login?invalid-session=true"));
 	}
 	
 	@WithAnonymousUser

@@ -477,7 +477,9 @@ public class BankDemoBootApplicationIT {
 		
 		@Test
 		void unauthorized_denied() throws Exception {
-			mockMVC.perform(post("/confirm")).andExpect(status().isForbidden());			
+			mockMVC.perform(post("/confirm"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/login?invalid-session=true"));			
 		}
 		
 		@WithMockUser(username = "0000000000", roles = "ADMIN")
@@ -1542,9 +1544,9 @@ public class BankDemoBootApplicationIT {
 			
 			String impl = "XXX";
 			mockMVC.perform(put("/control").with(csrf()).param("impl", impl))
-					.andExpect(status().isBadRequest())
-					.andExpect(content()
-						.string(containsString("Wrong implementation type " + impl + " specified, retry")));
+				.andExpect(status().isBadRequest())
+				.andExpect(content()
+				.string(containsString("Wrong implementation type " + impl + " specified, retry")));
 		}
 		
 		@WithMockUser(username = "1111111111", roles = "CLIENT")
@@ -1552,7 +1554,8 @@ public class BankDemoBootApplicationIT {
 		void credentials_forbidden() throws Exception {
 			
 	        mockMVC.perform(put("/control"))
-				.andExpect(status().isForbidden());
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/login?invalid-session=true"));
 		}
 		
 	}

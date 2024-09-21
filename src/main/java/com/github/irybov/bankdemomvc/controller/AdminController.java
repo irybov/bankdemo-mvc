@@ -319,7 +319,8 @@ public class AdminController extends BaseController {
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> mindate, 
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> maxdate,
 			@RequestParam Optional<Double> minval, @RequestParam Optional<Double> maxval,
-			@RequestParam Optional<String> action, @ApiIgnore(
+			@RequestParam Optional<String> action, 
+			@ApiIgnore(
                     "Ignored because swagger ui shows the wrong params, " +
                     "instead they are explained in the implicit params"
             )Pageable pageable) {
