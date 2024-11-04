@@ -91,6 +91,7 @@ public class OperationDAO {
 		
 		CriteriaQuery<Long> howMuch = builder.createQuery(Long.class);
 		Root<Operation> quantity = howMuch.from(Operation.class);
+		howMuch.where(query);
 		howMuch.select(builder.count(quantity));
 		long count = entityManager.createQuery(howMuch).getSingleResult();
 		
