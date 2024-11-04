@@ -76,7 +76,10 @@ public class OperationDAO {
 		result.where(query);
 		result.orderBy(builder.desc(root.get(Operation_.ID)));		
 		result.select(root);
-		List<Operation> operations = entityManager.createQuery(result).getResultList();
+		List<Operation> operations = entityManager.createQuery(result)
+				.setFirstResult((int) pageable.getOffset())
+				.setMaxResults(pageable.getPageSize())
+				.getResultList();
 		
 //		TypedQuery<Operation> typed = entityManager.createQuery(result);
 //		List<Operation> operations = typed.getResultList();
