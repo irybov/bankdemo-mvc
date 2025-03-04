@@ -401,7 +401,7 @@ public class BankDemoBootApplicationIT {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/login?error=true"))
 				.andExpect(result -> assertThat
-					(result.getResolvedException() instanceof BadCredentialsException))
+					(result.getResolvedException() instanceof BadCredentialsException).isTrue())
 //				.andExpect(result -> assertEquals
 //					("Invalid verfication code", result.getResolvedException().getMessage()))
 				.andDo(print());
@@ -438,7 +438,7 @@ public class BankDemoBootApplicationIT {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/login?error=true"))
 				.andExpect(result -> assertThat
-					(result.getResolvedException() instanceof BadCredentialsException))
+					(result.getResolvedException() instanceof BadCredentialsException).isTrue())
 //				.andExpect(result -> assertEquals
 //					("Bad Credentials", result.getResolvedException().getMessage()))
 				.andDo(print());
@@ -455,7 +455,7 @@ public class BankDemoBootApplicationIT {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/login?error=true"))
 				.andExpect(result -> assertThat
-					(result.getResolvedException() instanceof DisabledException))
+					(result.getResolvedException() instanceof DisabledException).isTrue())
 //				.andExpect(result -> assertEquals
 //					("User is disabled", result.getResolvedException().getMessage()))
 				.andDo(print());			
