@@ -67,6 +67,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -131,7 +132,7 @@ class AdminControllerTest {
 	        executor.setMaxPoolSize(cores * 2);
 	        executor.setQueueCapacity(cores * 4);
 	    	executor.initialize();
-	    	return executor;
+	    	return new DelegatingSecurityContextAsyncTaskExecutor(executor);
 	    }
 		
 	}
@@ -209,15 +210,11 @@ class AdminControllerTest {
 		
 	    verify(accountService).getAll();
 	}
-	private byte[] data_2_gzip_converter(List<AccountResponse> clients) {
+	private byte[] data_2_gzip_converter(List<AccountResponse> clients) throws IOException {
 		
-		String json = null;
-		try {
-			json = mapper.writeValueAsString(clients);
-		}
-		catch (JsonProcessingException exc) {
-//			log.error(exc.getMessage(), exc);
-		}
+		String json = mapper.writeValueAsString(clients);
+//		try {json = mapper.writeValueAsString(clients);}
+//		catch (JsonProcessingException exc) {log.error(exc.getMessage(), exc);}
 		
 		byte[] data = json.getBytes(StandardCharsets.UTF_8);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -225,17 +222,12 @@ class AdminControllerTest {
 			gzip.write(data);
 			gzip.flush();
 		}
-		catch (IOException exc) {
-//			log.error(exc.getMessage(), exc);
-		}
+		catch (IOException exc) {throw new IOException();}
+		
 		byte[] bytes = baos.toByteArray();
-		try {
-			baos.flush();
-			baos.close();
-		}
-		catch (IOException exc) {
-//			log.error(exc.getMessage(), exc);
-		}
+		try {baos.flush();}
+		catch (IOException exc) {throw new IOException();}
+		finally {baos.close();}
 		
 		return bytes;
 	}
@@ -399,8 +391,8 @@ class AdminControllerTest {
 		CompletableFuture<BillResponse> futureBill = CompletableFuture.completedFuture(bill);
 		when(billService.getBillDTO(anyInt())).thenReturn(futureBill.join());
 
-		CompletableFuture<byte[]> futureByteArray = CompletableFuture.completedFuture
-				(data_2_csv_converter(futureBill.join(), futureOperations.join()));
+//		CompletableFuture<byte[]> futureByteArray = CompletableFuture.completedFuture
+//				(data_2_csv_converter(futureBill.join(), futureOperations.join()));
 		
 		MvcResult result = mockMVC.perform(get("/operations/print/{id}", "0"))
 			.andExpect(request().asyncStarted())
@@ -409,7 +401,7 @@ class AdminControllerTest {
 		mockMVC.perform(asyncDispatch(result))
 			.andExpect(status().isCreated())
 			.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-			.andExpect(content().bytes(futureByteArray.join()));
+			.andExpect(content().bytes(data_2_csv_converter(futureBill.join(), futureOperations.join())));
 		
 		verify(operationService).getAll(anyInt());
 		verify(billService).getBillDTO(anyInt());

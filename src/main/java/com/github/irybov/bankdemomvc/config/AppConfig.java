@@ -19,6 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -74,7 +75,7 @@ public class AppConfig {
         executor.setMaxPoolSize(cores * 5);
         executor.setQueueCapacity(cores * 10);
     	executor.initialize();
-    	return executor;
+    	return new DelegatingSecurityContextAsyncTaskExecutor(executor);
     }
     
     @Bean

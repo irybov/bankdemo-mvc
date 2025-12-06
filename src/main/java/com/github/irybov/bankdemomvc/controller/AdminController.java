@@ -198,25 +198,24 @@ public class AdminController extends BaseController {
 	@GetMapping("/accounts/list/all")
 	public CompletableFuture<ResponseEntity<byte[]>> getClientsList(){
 		
-		List<AccountResponse> clients = accountService.getAll();
-		if(clients == null || clients.isEmpty()) {
-			return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
-		}
-		byte[] bytes = data_2_gzip_converter(clients);
-		
-		return CompletableFuture.supplyAsync(() -> 
-				ResponseEntity.ok().header(HttpHeaders.CONTENT_ENCODING, "gzip").body(bytes), 
-				executorService);
-	}
-	private byte[] data_2_gzip_converter(List<AccountResponse> clients) {
-		
-		String json = null;
-		try {
-			json = mapper.writeValueAsString(clients);
-		}
-		catch (JsonProcessingException exc) {
+		return CompletableFuture.supplyAsync(() -> {
+			List<AccountResponse> clients = accountService.getAll();
+			if(clients == null || clients.isEmpty()) {throw new RuntimeException();}
+			byte[] bytes = null;
+			try {bytes = data_2_gzip_converter(clients);} 
+			catch (IOException exc) {}
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_ENCODING, "gzip").body(bytes);
+		}, executorService)
+		.exceptionally(exc -> {
 			log.error(exc.getMessage(), exc);
-		}
+			return ResponseEntity.internalServerError().build();
+		});
+	}
+	private byte[] data_2_gzip_converter(List<AccountResponse> clients) throws IOException {
+		
+		String json = mapper.writeValueAsString(clients);
+//		try {json = mapper.writeValueAsString(clients);}
+//		catch (JsonProcessingException exc) {log.error(exc.getMessage(), exc);}
 		
 		byte[] data = json.getBytes(StandardCharsets.UTF_8);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -224,17 +223,12 @@ public class AdminController extends BaseController {
 			gzip.write(data);
 			gzip.flush();
 		}
-		catch (IOException exc) {
-			log.error(exc.getMessage(), exc);
-		}
+		catch (IOException exc) {throw new IOException();}
+		
 		byte[] bytes = baos.toByteArray();
-		try {
-			baos.flush();
-			baos.close();
-		}
-		catch (IOException exc) {
-			log.error(exc.getMessage(), exc);
-		}
+		try {baos.flush();}
+		catch (IOException exc) {throw new IOException();}
+		finally {baos.close();}
 		
 		return bytes;
 	}
@@ -377,17 +371,23 @@ public class AdminController extends BaseController {
 	   		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	   		return CompletableFuture.completedFuture(null);
 		}*/
-		CompletableFuture<byte[]> futureByteArray = CompletableFuture.supplyAsync
+		return CompletableFuture.supplyAsync
 				(() -> {
-					try {return data_2_csv_converter(futureBill.join(), futureOperations.join());}
+					try {
+						byte[] data = data_2_csv_converter(futureBill.join(), futureOperations.join());
+						response.setStatus(HttpServletResponse.SC_CREATED);
+						log.info("Admin {} exports data about bill {} to csv", authentication().getName(), id);
+						return data;
+					}
 					catch (Exception exc) {
 						log.error(exc.getMessage(), exc);
 						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-						return null;
+						return new byte[0];
 					}
-				}, executorService);
+				}, executorService)
+				.thenApply(data -> new InputStreamResource(new BufferedInputStream(
+						new ByteArrayInputStream(data))));
 
-		
 /*        try (CSVWriter writer = new CSVWriter(new BufferedWriter(new FileWriter
         		(new File(PATH, FILENAME))))) {
             writer.writeAll(data);
@@ -395,13 +395,12 @@ public class AdminController extends BaseController {
         catch (IOException exc) {
         	log.error(exc.getMessage(), exc);
 		}*/
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		log.info("Admin {} exports data about bill {} to csv", authentication().getName(), id);		
+/*		
         return CompletableFuture.supplyAsync(() -> 
         					new InputStreamResource(new BufferedInputStream(
         					new ByteArrayInputStream(futureByteArray.join()))), executorService)
 	        		.exceptionally(exc -> null);
-        
+*/        
 //		File file = new File(PATH + SLASH + FILENAME);
 //		return new InputStreamResource(new BufferedInputStream(new FileInputStream(file)));
 /*        response.setContentType("text/csv");
