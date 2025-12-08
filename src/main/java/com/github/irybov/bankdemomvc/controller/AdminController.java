@@ -223,11 +223,11 @@ public class AdminController extends BaseController {
 			gzip.write(data);
 			gzip.flush();
 		}
-		catch (IOException exc) {throw new IOException();}
+//		catch (IOException exc) {throw new IOException();}
 		
 		byte[] bytes = baos.toByteArray();
 		try {baos.flush();}
-		catch (IOException exc) {throw new IOException();}
+//		catch (IOException exc) {throw new IOException();}
 		finally {baos.close();}
 		
 		return bytes;
