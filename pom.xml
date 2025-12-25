@@ -14,6 +14,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 	<version>1.0.0-FINAL</version>
 	<name>Bank demo</name>
 	<description>Demo project for Spring Boot monolith</description>
+	<packaging>war</packaging>
 	<contributors>
 		<contributor>
 			<name>Ivan Ryabov</name>
@@ -30,6 +31,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 		<tests.skip>true</tests.skip>
 	</properties>
 	<dependencies>
+		<dependency>
+		   <groupId>org.springframework.boot</groupId>
+		   <artifactId>spring-boot-starter-tomcat</artifactId>
+		   <scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -63,10 +69,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 		    <groupId>com.fasterxml.jackson.dataformat</groupId>
 		    <artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
-<!-- 		<dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-jdbc</artifactId>
-    	</dependency> -->
     	<dependency>
 		    <groupId>io.springfox</groupId>
 		    <artifactId>springfox-boot-starter</artifactId>
@@ -208,6 +210,27 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<!-- <version>3.2.0</version> -->
+		<configuration>
+			<outputDirectory>${basedir}/target</outputDirectory>
+			<overwrite>true</overwrite>
+			<resources>
+				<resource>
+					<directory>${basedir}</directory>
+                       <includes>
+	                       <include>files/**</include>
+                       </includes>
+				</resource>
+			</resources>
+		</configuration>
+		<executions>
+			<execution>
+				<id>copy-resources</id>
+				<phase>validate</phase>
+				<goals>
+					<goal>copy-resources</goal>
+				</goals>
+			</execution>
+		</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -253,6 +276,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 				</executions>
 			</plugin>			
 		</plugins>
+		<finalName>bankdemo</finalName>
 	</build>
 
 </project>
