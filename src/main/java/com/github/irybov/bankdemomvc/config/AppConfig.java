@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -28,6 +29,7 @@ import com.github.irybov.bankdemomvc.service.BillService;
 import com.github.irybov.bankdemomvc.service.OperationService;
 import com.github.irybov.bankdemomvc.validation.AccountValidator;
 
+@PropertySource("classpath:custom.properties")
 @EnableScheduling
 @Configuration
 @ComponentScan(basePackages="com.github.irybov.bankdemomvc.config")
